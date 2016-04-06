@@ -1,0 +1,40 @@
+body {
+  background-color: #FAFAFA !important;
+}
+
+.center {
+  margin: auto auto auto auto;
+}
+
+#animation {
+  width: 500px;
+  height: 500px;
+}
+
+h1, h2 {
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+  color: #212121 !important;
+}
+
+.svg-class {
+  margin: auto;
+}
+
+path {
+  fill-rule: evenodd;
+  stroke: #333;
+  stroke-width: 2px;
+}
+
+.sun path {
+  fill: #616161;
+}
+
+.planet path {
+  fill: #757575;
+}
+
+.annulus path {
+  fill: #424242;
+}
