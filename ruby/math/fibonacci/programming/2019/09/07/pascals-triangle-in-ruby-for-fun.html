@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Pascal’s triangle in Ruby for fun | alebian’s blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Pascal’s triangle in Ruby for fun" />
+<meta name="author" content="Alejandro Bezdjian" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Pascal’s triangle implementation in Ruby" />
+<meta property="og:description" content="Pascal’s triangle implementation in Ruby" />
+<link rel="canonical" href="/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html" />
+<meta property="og:url" content="/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html" />
+<meta property="og:site_name" content="alebian’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-09-07T00:00:00-03:00" />
+<script type="application/ld+json">
+{"headline":"Pascal’s triangle in Ruby for fun","mainEntityOfPage":{"@type":"WebPage","@id":"/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html"},"url":"/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Pascal’s triangle implementation in Ruby","dateModified":"2019-09-07T00:00:00-03:00","datePublished":"2019-09-07T00:00:00-03:00","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="alebian's blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">alebian&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Pascal&#39;s triangle in Ruby for fun</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-09-07T00:00:00-03:00" itemprop="datePublished">Sep 7, 2019
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>The other day I came across a <a href="https://medium.com/i-math/top-10-secrets-of-pascals-triangle-6012ba9c5e23">blog post</a> talking about the Pascal’s triangle and all of it’s interesting properties and I thought it would be fun to implement it using Ruby.</p>
+
+<p>The Pascal’s triangle is a triangular array of the binomial coefficients, but you don’t have to calculate them in order to create the triangle because each row can be constructed using the previous one, like this:</p>
+
+<p><img src="/assets/images/pascal/1_building.png" alt="Building each row" /></p>
+
+<p>Forming something like this:</p>
+
+<p><img src="/assets/images/pascal/2_example.png" alt="First six rows of the triangle" /></p>
+
+<p>What amazes me is that this simple construction can be used to calculate a lot of interesting things. Even though there are more efficient ways to do the same calculations I thought it’d be fun to do it this way.</p>
+
+<h2 id="pascals-triangle-itself">Pascal’s triangle itself</h2>
+
+<p>First, we are going to need something that calculates the triangle, let’s create a class for this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PascalTriangle</span>
+  <span class="k">def</span> <span class="nf">initialize</span>
+    <span class="vi">@triangle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">]]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">get_file</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="vi">@triangle</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="k">if</span> <span class="vi">@triangle</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+
+    <span class="n">previous_file</span> <span class="o">=</span> <span class="n">get_file</span><span class="p">(</span><span class="n">param</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="vi">@triangle</span> <span class="o">&lt;&lt;</span> <span class="n">calculate_new</span><span class="p">(</span><span class="n">previous_file</span><span class="p">)</span>
+
+    <span class="vi">@triangle</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">calculate_new</span><span class="p">(</span><span class="n">previous_file</span><span class="p">)</span>
+    <span class="n">current_file</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="p">(</span><span class="n">previous_file</span><span class="p">.</span><span class="nf">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">idx</span><span class="o">|</span>
+      <span class="k">next</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">previous_file</span><span class="p">.</span><span class="nf">size</span> <span class="o">-</span> <span class="mi">1</span>
+
+      <span class="n">current_file</span> <span class="o">&lt;&lt;</span> <span class="n">previous_file</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">previous_file</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">end</span>
+    <span class="n">current_file</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+
+    <span class="n">current_file</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>I used a recursive function to create each row when needed and dynamic programming to store the intermediate results to make it faster for successive calls.</p>
+
+<h2 id="fibonacci">Fibonacci</h2>
+
+<p>Let’s start with my favourite application of the triangle, the Fibonacci sequence. Basically you can get the elements of the sequence doing:</p>
+
+<p><img src="/assets/images/pascal/3_fibonacci.png" alt="Fibonacci" /></p>
+
+<p>We can implement a method like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="vi">@triangle</span> <span class="o">=</span> <span class="no">PascalTriangle</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="k">def</span> <span class="nf">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+  <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+  <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span>
+
+  <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">n</span><span class="p">).</span><span class="nf">reverse_each</span><span class="p">.</span><span class="nf">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">n</span><span class="p">,</span> <span class="n">idx</span><span class="o">|</span>
+    <span class="n">coefficients</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">next</span> <span class="k">unless</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="n">result</span> <span class="o">+=</span> <span class="n">coefficients</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+  <span class="k">end</span>
+  <span class="n">result</span>
+<span class="k">end</span>
+
+<span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">20</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">n</span><span class="o">|</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="p">}</span> <span class="c1">#=&gt; [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181]</span>
+</code></pre></div></div>
+
+<h2 id="binomial-coefficient">Binomial coefficient</h2>
+
+<p>Each element of the triangle corresponds to a binomial coefficient:</p>
+
+<p><img src="/assets/images/pascal/4_binomial.png" alt="Binomial coefficients" /></p>
+
+<p>So it’s super easy to get the value:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">binomial_coefficient</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+  <span class="n">file</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+  <span class="n">file</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="binomial-expansions">Binomial expansions</h2>
+
+<p>Coefficients of the expansion of a binomial raised to a positive integer N appear in the Nth row of the Pascal’s triangle:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(x + y)^2 = x^2 + 2xy + y^2 = 1*x^2 + 2*xy + 1*y^2
+</code></pre></div></div>
+
+<p>With this not only wee can get the coefficients, but calculate <code class="highlighter-rouge">(x+y)^n</code>:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">binomial_power</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+  <span class="n">coefficients</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+  <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">coefficients</span><span class="p">.</span><span class="nf">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">idx</span><span class="o">|</span>
+    <span class="n">result</span> <span class="o">+=</span> <span class="n">coefficient</span> <span class="o">*</span> <span class="n">a</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">idx</span><span class="p">)</span> <span class="o">*</span> <span class="n">b</span><span class="o">**</span><span class="n">idx</span>
+  <span class="k">end</span>
+
+  <span class="n">result</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="powers-of-2">Powers of 2</h2>
+
+<p>If we sum each number of the Nth row of the triangle we get <code class="highlighter-rouge">2^n</code>!</p>
+
+<p><img src="/assets/images/pascal/5_2n.png" alt="Powers of 2" /></p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">power_of_2</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+  <span class="n">coefficients</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+  <span class="n">coefficients</span><span class="p">.</span><span class="nf">sum</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="powers-of-11">Powers of 11</h2>
+
+<p>Here is a more complicated one. We can build the powers of 11 concatenating each number of a row.</p>
+
+<p><img src="/assets/images/pascal/6_11n.png" alt="Powers of 11" /></p>
+
+<p>Things get more complicated when the numbers start to get bigger. So we need to carry the tens place over to the number on it’s left:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">power_of_11</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+  <span class="n">coefficients</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">param</span> <span class="o">&lt;=</span> <span class="mi">4</span>
+    <span class="n">coefficients</span><span class="p">.</span><span class="nf">join</span><span class="p">.</span><span class="nf">to_i</span>
+  <span class="k">else</span>
+    <span class="n">coefficients_with_carry</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">coefficients</span><span class="p">.</span><span class="nf">reverse_each</span><span class="p">.</span><span class="nf">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">idx</span><span class="o">|</span>
+      <span class="n">coefficient_with_carry</span> <span class="o">=</span> <span class="n">coefficient</span> <span class="o">+</span> <span class="n">coefficients_with_carry</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+      <span class="k">if</span> <span class="n">coefficient_with_carry</span> <span class="o">&lt;</span> <span class="mi">10</span>
+        <span class="n">coefficients_with_carry</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">coefficient_with_carry</span>
+        <span class="n">coefficients_with_carry</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">else</span>
+        <span class="n">coefficients_with_carry</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">coefficient_with_carry</span> <span class="o">%</span> <span class="mi">10</span>
+        <span class="n">coefficients_with_carry</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">coefficient_with_carry</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">).</span><span class="nf">floor</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="n">coefficients_with_carry</span><span class="p">.</span><span class="nf">reverse</span><span class="p">.</span><span class="nf">join</span><span class="p">.</span><span class="nf">to_i</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="series">Series</h2>
+
+<p>We can find some series of numbers in the triangle</p>
+
+<h3 id="perfect-squares">Perfect squares</h3>
+
+<p>Perfect squares are numbers that can be expressed as the product of two equal integers, for example 4 is a perfect square becase you can express it like <code class="highlighter-rouge">2^2 = 4</code>. The perfect squares are found in the third column of the triangle, the trick is that you have to sum the element of the previous row:</p>
+
+<p><img src="/assets/images/pascal/7_series.png" alt="Perfect squares" /></p>
+
+<p>We can create a class that returns all of the perfect squares one by one:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PerfectSquaresSeries</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
+    <span class="vi">@triangle</span> <span class="o">=</span> <span class="n">triangle</span>
+    <span class="vi">@current_file</span> <span class="o">=</span> <span class="mi">3</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">next</span>
+    <span class="n">previous_file</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="vi">@current_file</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="vi">@current_file</span><span class="p">)</span>
+    <span class="vi">@current_file</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">file</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">previous_file</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">series</span> <span class="o">=</span> <span class="no">PerfectSquaresSeries</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vi">@triangle</span><span class="p">)</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 4</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 9</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 16</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 25</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 36</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 49</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 64</span>
+<span class="n">series</span><span class="p">.</span><span class="nf">next</span> <span class="c1">#=&gt; 81</span>
+</code></pre></div></div>
+
+<h3 id="natural-numbers">Natural numbers</h3>
+
+<p>If we take a look at the second column we see that the natural numbers appear:</p>
+
+<p><img src="/assets/images/pascal/8_natural.png" alt="N-hedral numbers" /></p>
+
+<p>This is not something very interesting, but if we see the succesive columns we observe the triangular, tetrahedral, pentalope numbers and so on (which I generalized calling them the N-hedral numbers).</p>
+
+<h3 id="n-hedral-numbers">N-hedral numbers</h3>
+
+<p>All the series can be found in the Nth column of the triangle, and we can get them like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NHedralSeries</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">triangle</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="vi">@triangle</span> <span class="o">=</span> <span class="n">triangle</span>
+    <span class="vi">@current_file</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="vi">@n</span> <span class="o">=</span> <span class="n">n</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">next</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="vi">@current_file</span><span class="p">)</span>
+    <span class="vi">@current_file</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">file</span><span class="p">[</span><span class="vi">@n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">natural</span> <span class="o">=</span> <span class="no">NHedralSeries</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vi">@triangle</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="mi">10</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="n">natural</span><span class="p">.</span><span class="nf">next</span> <span class="p">}</span> <span class="c1">#=&gt; [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]</span>
+
+<span class="n">triangular</span> <span class="o">=</span> <span class="no">NHedralSeries</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vi">@triangle</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="mi">10</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="n">triangular</span><span class="p">.</span><span class="nf">next</span> <span class="p">}</span> <span class="c1">#=&gt; [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66]</span>
+
+<span class="n">tetrahedral</span> <span class="o">=</span> <span class="no">NHedralSeries</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vi">@triangle</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="mi">10</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="n">tetrahedral</span><span class="p">.</span><span class="nf">next</span> <span class="p">}</span> <span class="c1">#=&gt; [1, 4, 10, 20, 35, 56, 84, 120, 165, 220, 286]</span>
+
+<span class="n">pentalope</span> <span class="o">=</span> <span class="no">NHedralSeries</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vi">@triangle</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="mi">10</span><span class="p">).</span><span class="nf">map</span> <span class="p">{</span> <span class="n">pentalope</span><span class="p">.</span><span class="nf">next</span> <span class="p">}</span> <span class="c1">#=&gt; [1, 5, 15, 35, 70, 126, 210, 330, 495, 715, 1001]</span>
+</code></pre></div></div>
+
+<p>I hope you enjoyed this exercise as much as I did! You can find my complete implementation <a href="https://gist.github.com/alebian/654be128d39ea819ea89f6fdd48e301f">here</a>.</p>
+
+  </div><a class="u-url" href="/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">alebian&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Alejandro Bezdjian</li><li><a class="u-email" href="mailto:alebezdjian@gmail.com">alebezdjian@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.linkedin.com/in/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.twitter.com/alebezdjian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">alebezdjian</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Alejandro Bezdjian&#39;s technical blog about programming.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

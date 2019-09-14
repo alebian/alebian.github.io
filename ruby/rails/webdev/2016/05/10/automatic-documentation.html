@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Automatic API documentation using Rails | alebian’s blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Automatic API documentation using Rails" />
+<meta name="author" content="Alejandro Bezdjian" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Document your API endpoints automatically using Dictum" />
+<meta property="og:description" content="Document your API endpoints automatically using Dictum" />
+<link rel="canonical" href="/ruby/rails/webdev/2016/05/10/automatic-documentation.html" />
+<meta property="og:url" content="/ruby/rails/webdev/2016/05/10/automatic-documentation.html" />
+<meta property="og:site_name" content="alebian’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-05-10T00:00:00-03:00" />
+<script type="application/ld+json">
+{"headline":"Automatic API documentation using Rails","mainEntityOfPage":{"@type":"WebPage","@id":"/ruby/rails/webdev/2016/05/10/automatic-documentation.html"},"url":"/ruby/rails/webdev/2016/05/10/automatic-documentation.html","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Document your API endpoints automatically using Dictum","dateModified":"2016-05-10T00:00:00-03:00","datePublished":"2016-05-10T00:00:00-03:00","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="alebian's blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">alebian&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Automatic API documentation using Rails</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2016-05-10T00:00:00-03:00" itemprop="datePublished">May 10, 2016
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>The technological trend in recent times is to store the user’s information in the cloud so that they can access it from any mobile, wearable or desktop device. To achieve this, you need to have some kind of API hosted on a server that feeds the apps, on this post we are going to focus on REST API. This way, we are able to have the business logic and data on the server side.</p>
+
+<p>At work, we usually build web and mobile platforms for our clients using technologies such as Angular, Android, and iOS, and we use Ruby on Rails for the backend API. As you can imagine, for a project requiring all these technologies, several specialized teams are needed in order to provide the best possible service. This workflow creates a <strong>strong and inevitable dependence between the API and the rest of the technologies</strong>. Any change made to the API is automatically reflected on the devices. If the team is working on the first version of the API (or if it doesn’t have versioning) and these changes are important, they may even cause the apps to stop working or have errors that affect usability. While it is true that the contract that provides the API should not change, there are situations that make these changes unavoidable, and thus, <strong>communication between the teams is essential</strong>.</p>
+
+<p>One of the best ways the API team can communicate with the other teams is through the endpoints <strong>documentation</strong>. It is useful both for the rest of the development teams and for potential external consumers. It is also practical for the API development team itself as it saves a lot of time spent answering questions about each of the resources presented.</p>
+
+<p>All developers have suffered at one point due to poor documentation. What defines poor documentation? Mainly, it’s the lack of updates and clarity on how the service should be used. How many times have we seen documentation that does not detail the headers required for the request? Or that showed a sample response that does not match reality? Or other cases in which the documented endpoint no longer exists or has changed its path?</p>
+
+<p>The only ones responsible for this are the API developers themselves who, although aware that it is necessary to have good documentation, also know that this task is <strong>tedious</strong> and <strong>time-consuming</strong>. So, good documentation is something difficult to have when you’re under pressure due to client’s deadlines and the speed of the market. Therefore, documenting is often a process that is not prioritized and even if it is, it is very likely that it will become <strong>deprecated</strong> quickly. Consequently, it’s delayed or made quickly (almost like a rough draft of some sort), while other features of the system are on the focus.</p>
+
+<p>Many tools have emerged over time to simplify the task. <a href="https://apiary.io/">Apiary</a>, for example, allows making a mock of all endpoints and their responses, giving the option for the mobile applications to consume these fake resources without having to deploy them to the real API. It is very useful because app development is not delayed if the API team is having trouble delivering on time, and can also be used as documentation because you can add descriptions to the endpoints, clearly showing the way it is used and the response received.</p>
+
+<p>However, since the data is mocked, any changes made in the implementation must be quickly changed in the documentation so as to keep it updated. The biggest problem this has is that some changes, such as a serializer change, are replicated in many endpoints. It may even be that the developer itself is <strong>not aware of the extent</strong> of this change if they are working with a fairly large API, so, although this tool has many advantages, it is very susceptible to obsolescence.</p>
+
+<p>There are other tools that require the API developers to write extra code (usually some sort of comment) above the method that they want to document. You usually list its description, parameters, response example and sometimes more. This is the traditional way to document in languages such as Java. These tools create beautiful HTML documents, but have certain disadvantages: if the method response can be defined, developers must keep the information updated, not to mention that the API could return a very large JSON or XML, causing the controller to have many lines of comments and/or code for documentation. All those lines added makes the code more complex and harder to read. The documentation can even be longer than the code itself!</p>
+
+<p>Tools that try to shed some light into this issue are starting to appear. These are the ones that generate documentation through the tests. A robust and good quality API <strong>MUST have tests</strong>, and such tests should cover most common use cases (at least). That’s why the information used for these tests may be helpful in understanding the operation of the API and would be very useful to be able to extract it <strong>automatically</strong>. So, addressing the problem this way, we can have all the information updated every time the tests are run! And furthermore, we are <strong>forced to have a good amount of API use case tests</strong>. A WIN-WIN situation. The tools used when applying this methodology have a small disadvantage: They create a kind of DSL to be able to use it, increasing the developer’s learning curve.</p>
+
+<p>That’s why I decided to create Dictum, a tool with these characteristics for Rails that is <strong>easy</strong> to use and <strong>powerful</strong> enough to let you <strong>customize</strong> it any way you want!</p>
+
+<p>So far, it creates documentation in markdown and HTML formats. Let’s see a short example:</p>
+
+<p>First you have to add the configuration file:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># /config/initializers/dictum.rb</span>
+<span class="no">Dictum</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">output_path</span> <span class="o">=</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">root</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s1">'docs'</span><span class="p">)</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">root_path</span> <span class="o">=</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">root</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">output_filename</span> <span class="o">=</span> <span class="s1">'Documentation'</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">output_format</span> <span class="o">=</span> <span class="ss">:markdown</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Then you can customize your Rspec’s after(:each) hook like this:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># spec/support/spec_helper.rb</span>
+<span class="no">RSpec</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="p">.</span><span class="nf">after</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="nb">test</span><span class="o">|</span>
+    <span class="k">if</span> <span class="nb">test</span><span class="p">.</span><span class="nf">metadata</span><span class="p">[</span><span class="ss">:dictum</span><span class="p">]</span>
+      <span class="no">Dictum</span><span class="p">.</span><span class="nf">endpoint</span><span class="p">(</span>
+        <span class="ss">resource: </span><span class="nb">test</span><span class="p">.</span><span class="nf">metadata</span><span class="p">[</span><span class="ss">:described_class</span><span class="p">].</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">gsub</span><span class="p">(</span><span class="s1">'Controller'</span><span class="p">,</span> <span class="s1">''</span><span class="p">),</span>
+        <span class="ss">endpoint: </span><span class="n">request</span><span class="p">.</span><span class="nf">fullpath</span><span class="p">,</span>
+        <span class="ss">http_verb: </span><span class="n">request</span><span class="p">.</span><span class="nf">env</span><span class="p">[</span><span class="s1">'REQUEST_METHOD'</span><span class="p">],</span>
+        <span class="ss">description: </span><span class="nb">test</span><span class="p">.</span><span class="nf">metadata</span><span class="p">[</span><span class="ss">:dictum_description</span><span class="p">],</span>
+        <span class="ss">request_body_parameters: </span><span class="n">request</span><span class="p">.</span><span class="nf">env</span><span class="p">[</span><span class="s1">'action_dispatch.request.parameters'</span><span class="p">],</span>
+        <span class="ss">response_status: </span><span class="n">response</span><span class="p">.</span><span class="nf">status</span><span class="p">,</span>
+        <span class="ss">response_body: </span><span class="n">response</span><span class="p">.</span><span class="nf">body</span>
+      <span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>After that, tell Dictum which tests are you going to document:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># spec/controllers/my_resource_controller_spec.rb</span>
+<span class="nb">require</span> <span class="s1">'spec_helper'</span>
+
+<span class="n">describe</span> <span class="no">MyResourceController</span> <span class="k">do</span>
+  <span class="no">Dictum</span><span class="p">.</span><span class="nf">resource</span><span class="p">(</span><span class="ss">name: </span><span class="s1">'MyResource'</span><span class="p">,</span> <span class="ss">description: </span><span class="s1">'This is MyResource description.'</span><span class="p">)</span>
+
+  <span class="n">describe</span> <span class="s1">'#some_method'</span> <span class="k">do</span>
+    <span class="n">context</span> <span class="s1">'some context of my resource'</span> <span class="k">do</span>
+
+      <span class="n">it</span> <span class="s1">'returns status ok'</span><span class="p">,</span> <span class="ss">dictum: </span><span class="kp">true</span><span class="p">,</span> <span class="ss">dictum_description: </span><span class="s1">'Some description of the endpoint.'</span> <span class="k">do</span>
+        <span class="n">get</span> <span class="ss">:index</span>
+        <span class="n">expect</span><span class="p">(</span><span class="n">response_status</span><span class="p">).</span><span class="nf">to</span> <span class="n">eq</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+      <span class="k">end</span>
+
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>And finally run: <code class="highlighter-rouge">bundle exec rake dictum:document</code></p>
+
+<p>That was really simple wasn’t it? You can read the gem’s <a href="https://github.com/alebian/dictum/blob/master/README.md">README</a> if you need more information.</p>
+
+<p>The gem is in a very early stage and has a long way to go, so feel free to report issues or make pull requests if you liked it!</p>
+
+  </div><a class="u-url" href="/ruby/rails/webdev/2016/05/10/automatic-documentation.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">alebian&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Alejandro Bezdjian</li><li><a class="u-email" href="mailto:alebezdjian@gmail.com">alebezdjian@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.linkedin.com/in/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.twitter.com/alebezdjian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">alebezdjian</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Alejandro Bezdjian&#39;s technical blog about programming.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
