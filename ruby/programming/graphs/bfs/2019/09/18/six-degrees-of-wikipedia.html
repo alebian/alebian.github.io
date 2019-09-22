@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Six degrees of Wikipedia | alebian’s blog</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Six degrees of Wikipedia" />
+<meta name="author" content="Alejandro Bezdjian" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Find the degrees of separation between Wikipedia articles" />
+<meta property="og:description" content="Find the degrees of separation between Wikipedia articles" />
+<link rel="canonical" href="/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html" />
+<meta property="og:url" content="/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html" />
+<meta property="og:site_name" content="alebian’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-09-18T00:00:00-03:00" />
+<script type="application/ld+json">
+{"headline":"Six degrees of Wikipedia","mainEntityOfPage":{"@type":"WebPage","@id":"/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html"},"url":"/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Find the degrees of separation between Wikipedia articles","dateModified":"2019-09-18T00:00:00-03:00","datePublished":"2019-09-18T00:00:00-03:00","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="alebian's blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">alebian&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Six degrees of Wikipedia</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-09-18T00:00:00-03:00" itemprop="datePublished">Sep 18, 2019
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>A few years ago, I read an <a href="https://research.fb.com/blog/2016/02/three-and-a-half-degrees-of-separation/">interesting article</a> about the degrees of separation between Facebook users. Regardless of the result in the article, I thought it would be exciting to find the separation between other things, like Wikipedia articles.</p>
+
+<p>For this problem, we are going to receive 2 valid Wikipedia articles and return a minimum list of articles that connects the two given. Two articles are connected if there is a link in one of the articles to the other (the other way around is not needed).</p>
+
+<p>Let’s divide the problem into parts that we can solve separately:</p>
+
+<ul>
+  <li>Get an article from wikipedia.</li>
+  <li>Get all the links in an article to other articles.</li>
+  <li>Find the minimum path between 2 articles.</li>
+</ul>
+
+<p>For the first two, we need to fetch an article using HTTP and then, find all the <code class="highlighter-rouge">a</code> tags that reference other articles. Inspecting the HTML we can see that every article has links that we want to skip (like the main page and external links):</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Services</span>
+  <span class="k">class</span> <span class="nc">Wikipedia</span>
+    <span class="no">BASE_URL</span> <span class="o">=</span> <span class="s1">'https://en.wikipedia.org'</span><span class="p">.</span><span class="nf">freeze</span>
+
+    <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+      <span class="k">def</span> <span class="nf">article_links</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+        <span class="n">article</span> <span class="o">=</span> <span class="n">get_article</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+
+        <span class="n">article</span><span class="p">.</span><span class="nf">css</span><span class="p">(</span><span class="s1">'a'</span><span class="p">).</span><span class="nf">each_with_object</span><span class="p">([])</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="p">,</span> <span class="n">array</span><span class="o">|</span>
+          <span class="n">href</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="s1">'href'</span><span class="p">]</span>
+          <span class="n">array</span> <span class="o">&lt;&lt;</span> <span class="n">href</span> <span class="k">if</span> <span class="n">internal?</span><span class="p">(</span><span class="n">href</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">array</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="n">href</span><span class="p">)</span>
+          <span class="n">array</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+
+      <span class="kp">private</span>
+
+      <span class="k">def</span> <span class="nf">get_article</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="no">URI</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="no">BASE_URL</span><span class="si">}#{</span><span class="n">article</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="no">Nokogiri</span><span class="o">::</span><span class="no">HTML</span><span class="p">(</span><span class="n">uri</span><span class="p">.</span><span class="nf">read</span><span class="p">)</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nf">internal?</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="n">link</span> <span class="o">=~</span> <span class="sr">/^\/wiki\/*/</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">link</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">link</span> <span class="o">!=</span> <span class="s1">'/wiki/Main_Page'</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>I used the <a href="https://nokogiri.org/">Nokogiri</a> gem to parse the HTML and easily search the <code class="highlighter-rouge">a</code> tags.</p>
+
+<p>Playing with the code I found that it would be nice to have some sort of cache so we don’t loose the data fetched from Wikipedia. I used Redis for this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Repositories</span>
+  <span class="k">class</span> <span class="nc">Redis</span>
+    <span class="no">REDIS_URL</span> <span class="o">=</span> <span class="s1">'redis://localhost:6379'</span><span class="p">.</span><span class="nf">freeze</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span>
+      <span class="vi">@connection</span> <span class="o">=</span> <span class="o">::</span><span class="no">Redis</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">url: </span><span class="no">REDIS_URL</span><span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">get_links</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+      <span class="k">return</span> <span class="no">Oj</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="vi">@connection</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="k">if</span> <span class="vi">@connection</span><span class="p">.</span><span class="nf">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+      <span class="n">links</span> <span class="o">=</span> <span class="no">Services</span><span class="o">::</span><span class="no">Wikipedia</span><span class="p">.</span><span class="nf">article_links</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+      <span class="vi">@connection</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">links</span><span class="p">.</span><span class="nf">to_json</span><span class="p">)</span>
+
+      <span class="n">links</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>The last part of the task is the actual algorithm. In this case, we can think of the articles as nodes of a graph and the links as the vertices, forming a directed graph. Since accessing each node has the same cost (an HTTP request), we can pretend this is an unweighted graph or a weighted one with the same cost on every edge.</p>
+
+<p>To build the graph I’ll use a gem called <a href="https://github.com/monora/rgl">RGL</a> and it also gives us a search algorithm so we don’t have to implement one. Since we don’t have the graph, we have to be smart about the way we create it. Traversing the links using DFS (depth-first search) may lead us to create a graph with an unnecesary amount of nodes, so I think it’s better to use BFS (breadth-first search) to build it:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Crawlers</span>
+  <span class="k">class</span> <span class="nc">Graph</span> <span class="o">&lt;</span> <span class="no">Base</span>
+    <span class="k">def</span> <span class="nf">call</span>
+      <span class="n">graph</span> <span class="o">=</span> <span class="no">RGL</span><span class="o">::</span><span class="no">DirectedAdjacencyGraph</span><span class="p">.</span><span class="nf">new</span>
+
+      <span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="n">queue</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="vi">@from_path</span><span class="p">)</span>
+
+      <span class="k">while</span> <span class="p">(</span><span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="p">.</span><span class="nf">shift</span><span class="p">)</span> <span class="o">!=</span> <span class="kp">nil</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="vi">@repository</span><span class="p">.</span><span class="nf">get_links</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+
+        <span class="n">links</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="o">|</span>
+          <span class="k">unless</span> <span class="n">graph</span><span class="p">.</span><span class="nf">has_vertex?</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+            <span class="n">graph</span><span class="p">.</span><span class="nf">add_edge</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+            <span class="n">queue</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+          <span class="k">end</span>
+        <span class="k">end</span>
+
+        <span class="k">if</span> <span class="n">links</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@to_path</span><span class="p">)</span>
+          <span class="k">return</span> <span class="n">graph</span><span class="p">.</span><span class="nf">dijkstra_shortest_path</span><span class="p">(</span><span class="no">EdgeWeightHack</span><span class="p">.</span><span class="nf">new</span><span class="p">,</span> <span class="vi">@from_path</span><span class="p">,</span> <span class="vi">@to_path</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">EdgeWeightHack</span>
+      <span class="c1"># The dijkstra_shortest_path expects a hash</span>
+      <span class="k">def</span> <span class="nf">[]</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="mi">1</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>As you can see I used a queue for adding the nodes in a BFS manner and skipped them if the graph already had the link. I found that the RGL gem didn’t have a search algorithm for unweighted graphs but it did have Dijkstra’s algorithm for weighted ones. It expected a hash with the edge values, but since every edge has the same value and I didn’t want to use unnecesary extra memory, I hacked a class called <code class="highlighter-rouge">EdgeWeightHack</code> taking advantage of Ruby’s duck typing.</p>
+
+<p>Now let’s see this in action! Let’s find out how separated is <code class="highlighter-rouge">Chuck Norris</code> from <code class="highlighter-rouge">Computer programming</code>:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">################################################################</span>
+<span class="no">Chuck_Norris</span> <span class="n">is</span> <span class="mi">3</span> <span class="n">degrees</span> <span class="n">separated</span> <span class="n">from</span> <span class="no">Computer_programming</span><span class="o">.</span>
+<span class="c1">################################################################</span>
+<span class="sr">/wiki/</span><span class="no">Chuck_Norris</span>
+<span class="sr">/wiki/</span><span class="no">Republican_Party_</span><span class="p">(</span><span class="no">United_States</span><span class="p">)</span>
+<span class="sr">/wiki/</span><span class="no">Internal_Revenue_Service</span>
+<span class="sr">/wiki/</span><span class="no">Computer_programming</span>
+<span class="c1">################################################################</span>
+</code></pre></div></div>
+
+<p>The algorithm had to search 1113 links to find the answer, and we (programmers) are only 3 degrees separated from Chuck! Nice!</p>
+
+<p>After having something working, I always try to see if I can improve it. I feel that making a BFS to add the nodes and then searching the path is making double work, because the BFS will find a minimum path in this case!</p>
+
+<p>Since I don’t want to search, every node I put in the graph has to know the path I used to get to it, so let’s build this custom graph:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Crawlers</span>
+  <span class="k">class</span> <span class="nc">Custom</span> <span class="o">&lt;</span> <span class="no">Base</span>
+    <span class="k">def</span> <span class="nf">call</span>
+      <span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="n">queue</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="no">Node</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="vi">@from_path</span><span class="p">))</span>
+
+      <span class="n">answer</span> <span class="o">=</span> <span class="p">[]</span>
+
+      <span class="k">while</span> <span class="p">(</span><span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="p">.</span><span class="nf">shift</span><span class="p">)</span> <span class="o">!=</span> <span class="kp">nil</span>
+        <span class="k">return</span> <span class="n">current</span><span class="p">.</span><span class="nf">complete_articles_path</span> <span class="k">if</span> <span class="n">current</span><span class="p">.</span><span class="nf">article</span> <span class="o">==</span> <span class="vi">@to_path</span>
+
+        <span class="n">links</span> <span class="o">=</span> <span class="vi">@repository</span><span class="p">.</span><span class="nf">get_links</span><span class="p">(</span><span class="n">current</span><span class="p">.</span><span class="nf">article</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">links</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@to_path</span><span class="p">)</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">answer</span> <span class="o">=</span> <span class="n">current</span><span class="p">.</span><span class="nf">complete_articles_path</span> <span class="o">&lt;&lt;</span> <span class="vi">@to_path</span><span class="p">)</span>
+        <span class="k">end</span>
+
+        <span class="n">links</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">article</span><span class="o">|</span>
+          <span class="k">unless</span> <span class="n">current</span><span class="p">.</span><span class="nf">previous_articles</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+            <span class="n">queue</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="no">Node</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">current</span><span class="p">.</span><span class="nf">complete_articles_path</span><span class="p">))</span>
+          <span class="k">end</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+
+      <span class="n">answer</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="nc">Node</span>
+      <span class="nb">attr_reader</span> <span class="ss">:article</span><span class="p">,</span> <span class="ss">:previous_articles</span>
+
+      <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">previous_articles</span> <span class="o">=</span> <span class="p">[])</span>
+        <span class="vi">@article</span> <span class="o">=</span> <span class="n">article</span>
+        <span class="vi">@previous_articles</span> <span class="o">=</span> <span class="n">previous_articles</span>
+      <span class="k">end</span>
+
+      <span class="k">def</span> <span class="nf">complete_articles_path</span>
+        <span class="vi">@previous_articles</span> <span class="o">+</span> <span class="p">[</span><span class="vi">@article</span><span class="p">]</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Now it’s time to benchmark both solutions and see which one is best:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmarking 100 times
+
+       user     system      total        real
+Custom 63.772801   9.894999  73.667800 (249.561173)
+Graph 197.834715  10.884686 208.719401 (378.234052)
+
+Memory usage of Custom ---------------------------
+        Total allocated: 155287889 bytes (2223856 objects)
+        Total retained: 546 bytes (2 objects)
+Memory usage of Graph ----------------------------
+        Total allocated: 259432021 bytes (2015009 objects)
+        Total retained: 97485111 bytes (517055 objects)
+</code></pre></div></div>
+
+<p>Wow! That’s actually a very big improvement in both speed and memory!</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Even though the result of solving this problem is not very useful, I had a lot of fun doing it. I was able to use the algorithms I’ve learned in a more “realistic” way (compared with the exercises found in books).</p>
+
+<p>I hope you enojoyed this as much as I did! You can check the full implementation <a href="https://github.com/alebian/six-degrees-of-wikipedia">on my github account</a>!</p>
+
+  </div><a class="u-url" href="/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">alebian&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Alejandro Bezdjian</li><li><a class="u-email" href="mailto:alebezdjian@gmail.com">alebezdjian@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.linkedin.com/in/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.twitter.com/alebezdjian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">alebezdjian</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Alejandro Bezdjian&#39;s technical blog about programming.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

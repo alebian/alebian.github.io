@@ -8,7 +8,7 @@ date: 2019-09-11 00:00:00 -0300
 categories: editor productivity vscode tools
 ---
 
-Recently, I was peer programming at work and, whithout, thinking I started to use a few editor tricks I had learned a while ago. My co-worker was amazed with them and picked up a few. At first I thought it was no big deal, but a few days later I began to observe that there are a lot of people who don't know many of these tricks. Since the tools we use have a lot of functionalities to make us more productive, it's a shame that we spoil them. That's why I thought it would be a good opportunity to transfer this useful knowledge and help others improve their productivity.
+Recently, I was peer programming at work and, whithout thinking, I started to use a few editor tricks I had learned a while ago. My co-worker was amazed with them and picked up a few. At first I thought it was no big deal, but a few days later I began to observe that there are a lot of people who don't know many of these tricks. Since the tools we use have a lot of functionalities to make us more productive, it's a shame that we spoil them. That's why I thought it would be a good opportunity to transfer this useful knowledge and help others improve their productivity.
 
 ## Building blocks
 
