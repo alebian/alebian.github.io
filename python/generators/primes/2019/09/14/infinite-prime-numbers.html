@@ -16,7 +16,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2019-09-14T00:00:00-03:00" />
 <script type="application/ld+json">
-{"headline":"Infinite list of prime numbers using Python generators","mainEntityOfPage":{"@type":"WebPage","@id":"/python/generators/primes/2019/09/14/infinite-prime-numbers.html"},"url":"/python/generators/primes/2019/09/14/infinite-prime-numbers.html","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Improve your coding speed using your editor correctly","dateModified":"2019-09-14T00:00:00-03:00","datePublished":"2019-09-14T00:00:00-03:00","@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"author":{"@type":"Person","name":"Alejandro Bezdjian"},"url":"/python/generators/primes/2019/09/14/infinite-prime-numbers.html","headline":"Infinite list of prime numbers using Python generators","dateModified":"2019-09-14T00:00:00-03:00","datePublished":"2019-09-14T00:00:00-03:00","description":"Improve your coding speed using your editor correctly","mainEntityOfPage":{"@type":"WebPage","@id":"/python/generators/primes/2019/09/14/infinite-prime-numbers.html"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="alebian's blog" /></head>
 <body><header class="site-header" role="banner">
@@ -54,14 +54,16 @@
 
 <p>The first thing we need is a way to detect if a number is prime:</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">is_prime</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="p">:</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+
+<span class="k">def</span> <span class="nf">is_prime</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">False</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">True</span>
 
-    <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span>
