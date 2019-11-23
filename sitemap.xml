@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://blog.alebian.com/ruby/rails/webdev/2016/05/10/automatic-documentation.html</loc>
+<lastmod>2016-05-10T00:00:00-03:00</lastmod>
+</url>
+<url>
+<loc>https://blog.alebian.com/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html</loc>
+<lastmod>2019-09-07T00:00:00-03:00</lastmod>
+</url>
+<url>
+<loc>https://blog.alebian.com/editor/productivity/vscode/tools/2019/09/11/text-editor-tips-and-tricks.html</loc>
+<lastmod>2019-09-11T00:00:00-03:00</lastmod>
+</url>
+<url>
+<loc>https://blog.alebian.com/python/generators/primes/2019/09/14/infinite-prime-numbers.html</loc>
+<lastmod>2019-09-14T00:00:00-03:00</lastmod>
+</url>
+<url>
+<loc>https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html</loc>
+<lastmod>2019-09-18T00:00:00-03:00</lastmod>
+</url>
+<url>
+<loc>https://blog.alebian.com/about/</loc>
+</url>
+<url>
+<loc>https://blog.alebian.com/featured_content/</loc>
+</url>
+<url>
+<loc>https://blog.alebian.com/</loc>
+</url>
+<url>
+<loc>https://blog.alebian.com/assets/Alejandro_Bezdjian_CV.pdf</loc>
+<lastmod>2019-11-22T18:38:00-03:00</lastmod>
+</url>
+</urlset>
