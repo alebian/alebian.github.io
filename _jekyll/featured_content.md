@@ -19,10 +19,15 @@ permalink: /featured_content/
 * [Simple made easy](https://www.infoq.com/presentations/Simple-Made-Easy)
 * [Stop Drawing Dead Fish](https://www.youtube.com/watch?v=KUDh6sCtm8s)
 * [Marx, Anarchism, and Web Standards](http://blog.steveklabnik.com/posts/2011-12-15-marx-anarchism-and-web-standards)
+* [Performance matters](https://www.youtube.com/watch?v=r-TLSBdHe1A)
 
 ## PostgreSQL
 
 * [How to query JSONB, beginner sheet cheat](https://hackernoon.com/how-to-query-jsonb-beginner-sheet-cheat-4da3aa5082a3)
+
+## React
+
+* [Build your own React in 90 lines of Javascript](https://dev.to/ameerthehacker/build-your-own-react-in-90-lines-of-javascript-1je2)
 
 ## Ruby / Rails
 
