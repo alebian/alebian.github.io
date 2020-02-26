@@ -3,7 +3,7 @@ title: Six degrees of Wikipedia
 published: true
 description: Find the degrees of separation between Wikipedia articles
 tags: ruby, programming, graphs, bfs
-layout: post
+layout: post_with_donation
 date: 2019-09-18 00:00:00 -0300
 categories: ruby programming graphs bfs
 ---

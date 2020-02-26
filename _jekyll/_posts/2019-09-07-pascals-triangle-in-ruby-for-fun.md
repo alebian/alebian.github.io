@@ -3,7 +3,7 @@ title: Pascal's triangle in Ruby for fun
 published: true
 description: Pascal's triangle implementation in Ruby
 tags: ruby, math, fibonacci, programming
-layout: post
+layout: post_with_donation
 date: 2019-09-07 00:00:00 -0300
 categories: ruby math fibonacci programming
 ---

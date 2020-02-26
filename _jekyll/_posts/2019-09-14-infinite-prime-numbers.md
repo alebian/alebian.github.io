@@ -3,7 +3,7 @@ title: Infinite list of prime numbers using Python generators
 published: true
 description: Improve your coding speed using your editor correctly
 tags: python, generators, primes
-layout: post
+layout: post_with_donation
 date: 2019-09-14 00:00:00 -0300
 categories: python generators primes
 ---
@@ -64,4 +64,4 @@ from itertools import islice
 array = [x for x in islice(prime_generator(), 10)]
 ```
 
-As you could see, the iterator definition is one of the shortest and simplest among all languages.
+As you can see, the iterator definition is one of the shortest and simplest among all languages.

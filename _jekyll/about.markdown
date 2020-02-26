@@ -9,3 +9,5 @@ I'm a Software Engineer with a solid Ruby on Rails background. I am mainly focus
 You can find my CV [here][1].
 
 [1]:{{ site.url }}/assets/Alejandro_Bezdjian_CV.pdf
+
+{% include buy_me_a_coffee.html %}

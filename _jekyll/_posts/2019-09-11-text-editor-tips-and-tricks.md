@@ -3,7 +3,7 @@ title: Text editor tips and tricks to boost your productivity
 published: true
 description: Improve your coding speed using your editor correctly
 tags: editor, productivity, vscode, tools
-layout: post
+layout: post_with_donation
 date: 2019-09-11 00:00:00 -0300
 categories: editor productivity vscode tools
 ---

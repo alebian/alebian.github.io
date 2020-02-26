@@ -3,7 +3,7 @@ title: Automatic API documentation using Rails
 published: true
 description: Document your API endpoints automatically using Dictum
 tags: ruby, rails, webdev
-layout: post
+layout: post_with_donation
 date: 2016-05-10 00:00:00 -0300
 categories: ruby rails webdev
 ---
