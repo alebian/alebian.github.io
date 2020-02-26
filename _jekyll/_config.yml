@@ -32,6 +32,7 @@ linkedin_username: alebian
 # Build settings
 theme: minima
 plugins:
+  - jekyll-analytics
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
@@ -54,3 +55,8 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+jekyll_analytics:
+  GoogleAnalytics:
+    id: UA-159130156-1
+    anonymizeIp: false
