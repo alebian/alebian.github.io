@@ -2,9 +2,9 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
 <title>Six degrees of Wikipedia | alebian’s blog</title>
-<meta name="generator" content="Jekyll v4.0.0" />
+<meta name="generator" content="Jekyll v4.0.1" />
 <meta property="og:title" content="Six degrees of Wikipedia" />
 <meta name="author" content="Alejandro Bezdjian" />
 <meta property="og:locale" content="en_US" />
@@ -15,8 +15,10 @@
 <meta property="og:site_name" content="alebian’s blog" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2019-09-18T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Six degrees of Wikipedia" />
 <script type="application/ld+json">
-{"url":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html","headline":"Six degrees of Wikipedia","dateModified":"2019-09-18T00:00:00-03:00","datePublished":"2019-09-18T00:00:00-03:00","author":{"@type":"Person","name":"Alejandro Bezdjian"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html"},"description":"Find the degrees of separation between Wikipedia articles","@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html"},"url":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html","headline":"Six degrees of Wikipedia","dateModified":"2019-09-18T00:00:00-03:00","datePublished":"2019-09-18T00:00:00-03:00","description":"Find the degrees of separation between Wikipedia articles","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
     <!-- Google Analytics -->
@@ -96,7 +98,7 @@
       <span class="k">end</span>
 
       <span class="k">def</span> <span class="nf">internal?</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
-        <span class="n">link</span> <span class="o">=~</span> <span class="sr">/^\/wiki\/*/</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">link</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">link</span> <span class="o">!=</span> <span class="s1">'/wiki/Main_Page'</span>
+        <span class="n">link</span> <span class="o">=~</span> <span class="sr">/^\/wiki\/*/</span><span class="err"> &amp;&amp; !l</span><span class="sr">in</span><span class="n">k</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">link</span> <span class="o">!=</span> <span class="s1">'/wiki/Main_Page'</span>
       <span class="k">end</span>
     <span class="k">end</span>
   <span class="k">end</span>
@@ -172,10 +174,10 @@
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">################################################################</span>
 <span class="no">Chuck_Norris</span> <span class="n">is</span> <span class="mi">3</span> <span class="n">degrees</span> <span class="n">separated</span> <span class="n">from</span> <span class="no">Computer_programming</span><span class="o">.</span>
 <span class="c1">################################################################</span>
-<span class="sr">/wiki/</span><span class="no">Chuck_Norris</span>
-<span class="sr">/wiki/</span><span class="no">Republican_Party_</span><span class="p">(</span><span class="no">United_States</span><span class="p">)</span>
-<span class="sr">/wiki/</span><span class="no">Internal_Revenue_Service</span>
-<span class="sr">/wiki/</span><span class="no">Computer_programming</span>
+<span class="sr">/wiki/</span><span class="err">Ch</span><span class="sr">u</span><span class="n">ck_Norris</span>
+<span class="sr">/wiki/</span><span class="err">R</span><span class="sr">e</span><span class="n">publican_Party_</span><span class="p">(</span><span class="no">United_States</span><span class="p">)</span>
+<span class="sr">/wiki/</span><span class="err">I</span><span class="sr">n</span><span class="n">ternal_Revenue_Service</span>
+<span class="sr">/wiki/</span><span class="err">C</span><span class="sr">om</span><span class="n">puter_programming</span>
 <span class="c1">################################################################</span>
 </code></pre></div></div>
 
