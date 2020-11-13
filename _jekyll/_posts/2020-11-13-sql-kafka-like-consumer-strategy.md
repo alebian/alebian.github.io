@@ -1,7 +1,7 @@
 ---
-title: Implement a kafka like consumer strategy for processing records in your database
+title: Implement a kafka like consumer strategy to process records in your database
 published: true
-description: Simple implementation of a kafka like consumer strategy for processing records in your database
+description: Simple implementation of a kafka like consumer strategy to process records in your database
 tags: sql, postgresql, algorithms
 layout: post_with_donation
 date: 2020-11-13 00:00:00 -0300
