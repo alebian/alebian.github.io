@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Implement a kafka like consumer strategy for processing records in your database | alebian’s blog</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Implement a kafka like consumer strategy for processing records in your database" />
+<meta name="author" content="Alejandro Bezdjian" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Simple implementation of a kafka like consumer strategy for processing records in your database" />
+<meta property="og:description" content="Simple implementation of a kafka like consumer strategy for processing records in your database" />
+<link rel="canonical" href="https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html" />
+<meta property="og:url" content="https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html" />
+<meta property="og:site_name" content="alebian’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-13T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Implement a kafka like consumer strategy for processing records in your database" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html"},"url":"https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html","headline":"Implement a kafka like consumer strategy for processing records in your database","dateModified":"2020-11-13T00:00:00-03:00","datePublished":"2020-11-13T00:00:00-03:00","description":"Simple implementation of a kafka like consumer strategy for processing records in your database","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-159130156-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', false);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">alebian&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a><a class="page-link" href="/featured_content/">Featured content</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Implement a kafka like consumer strategy for processing records in your database</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2020-11-13T00:00:00-03:00" itemprop="datePublished">Nov 13, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Let’s say you have a table in your database which contains data about some files that you would like to process in batch jobs (this is just an example, it can be anything other than files). You have some job that runs every X minutes and does something like:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">files</span>
+<span class="k">WHERE</span> <span class="n">processed</span> <span class="o">=</span> <span class="k">false</span>
+<span class="k">LIMIT</span> <span class="mi">100</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Then, it process each row and updates it by flipping the <code class="highlighter-rouge">processed</code>. This simple implementation should work just fine if the worker can process the incoming data as fast as it is generated, but it will start lagging if not (or if you want to re-process all the rows in a reasonable time).</p>
+
+<p>The natural thing to do in that case would be to add more workers to parallelize the process. The problem is that the query we are making can lead to problems, for example, since there is no mechanism to stop 2 workers from getting the same rows, some rows can get processed more than once.</p>
+
+<p>I want to show you one way to solve this problem borrowing an idea from Kafka. In kafka you can scale a topic by adding more partitions to it, this will allow you to increase the number of consumers and your throughput. You can read more about kafka consumers <a href="https://www.oreilly.com/library/view/kafka-the-definitive/9781491936153/ch04.html">here</a>.</p>
+
+<p><img src="https://www.oreilly.com/library/view/kafka-the-definitive/9781491936153/assets/ktdg_04in02.png" alt="" /></p>
+
+<p>Kafka guarantees that the messages written into a topic will be stored in only one partition and will be consumed by only one consumer in a consumer group, and that’s exactly what we want in our case here.</p>
+
+<p>In order to achieve this we can use a few useful SQL functions. First we are going to need a unique hash_code for each of our rows:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">files</span> <span class="k">ADD</span> <span class="k">COLUMN</span> <span class="n">hash_code</span> <span class="nb">BIGINT</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The “partition” will be calculated from to this number, so make sure to use a good hashing function.</p>
+
+<p>Every worker instance will act as a “consumer” in kafka, so they need a unique number to avoid processing the same rows, and just like kafka, we won’t be able to have more “consumers” than “partitions”. How to assign that number depends on your application and is out of the scope of this post.</p>
+
+<p>The other important number that we need is the total amount of workers. Once we have those, let’s change our query to get the results we want:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">files</span>
+<span class="k">WHERE</span> <span class="n">processed</span> <span class="o">=</span> <span class="k">false</span> <span class="k">AND</span> <span class="k">MOD</span><span class="p">(</span><span class="n">hash_code</span><span class="p">,</span> <span class="p">:</span><span class="n">instances</span><span class="p">)</span> <span class="o">=</span> <span class="p">:</span><span class="n">instanceId</span>
+<span class="k">LIMIT</span> <span class="mi">100</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The main idea behind this query is to use the <a href="https://en.wikipedia.org/wiki/Modulo_operation">modulo operation</a> to find the “partition”, so <code class="highlighter-rouge">MOD(hash_code, :instances)</code> will return that number (starting from 0).</p>
+
+<p>Now, there is a problem with this query. Since we just added the <code class="highlighter-rouge">hash_code</code> column, there might be a lot of null values. To solve this issue, we can use the <a href="https://www.postgresqltutorial.com/postgresql-coalesce/">coalesce</a> function to turn each null value into a number. The final query should look like this:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">files</span>
+<span class="k">WHERE</span> <span class="n">processed</span> <span class="o">=</span> <span class="k">false</span> <span class="k">AND</span> <span class="k">MOD</span><span class="p">(</span><span class="n">COALESCE</span><span class="p">(</span><span class="n">hash_code</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">:</span><span class="n">instances</span><span class="p">)</span> <span class="o">=</span> <span class="p">:</span><span class="n">instanceId</span>
+<span class="k">LIMIT</span> <span class="mi">100</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>By doing this, you avoid the need to do a massive update in that table before being able to process the data, in this example all the null values will be processed only by the worker with ID 0.</p>
+
+<p>And that’s it!</p>
+
+<p>Of course this method isn’t perfect, you could have idle workers if the distribution of your data is not perfect.</p>
+
+<p>What I like about this approach is that is easy to understand, and the required code is simple and elegant. Other solutions may involve the use of locks which are harder to get right in my opinion.</p>
+
+<p>I hope you enjoyed this as much as I did! If you try it in your application let me know!</p>
+
+
+<style>
+  .bmc-button img {
+    height: 34px !important;
+    width: 35px !important;
+    margin-bottom: 1px !important;
+    box-shadow: none !important;
+    border: none !important;
+    vertical-align: middle !important;
+  }
+
+  .bmc-button {
+    padding: 7px 10px 7px 10px !important;
+    line-height: 35px !important;
+    height: 51px !important;
+    min-width: 217px !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    color: #ffffff !important;
+    background-color: #5F7FFF !important;
+    border-radius: 5px !important;
+    border: 1px solid transparent !important;
+    padding: 7px 10px 7px 10px !important;
+    font-size: 28px !important;
+    letter-spacing: 0.6px !important;
+    box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;
+    -webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+    margin: 0 auto !important;
+    font-family: 'Cookie', cursive !important;
+    -webkit-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+    -o-transition: 0.3s all linear !important;
+    -webkit-transition: 0.3s all linear !important;
+    -moz-transition: 0.3s all linear !important;
+    -ms-transition: 0.3s all linear !important;
+    transition: 0.3s all linear !important;
+  }
+
+  .bmc-button:hover,
+  .bmc-button:active,
+  .bmc-button:focus {
+    -webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+    text-decoration: none !important;
+    box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+    opacity: 0.85 !important;
+    color: #ffffff !important;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css?family=Cookie" rel="stylesheet">
+<a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/alebian">
+  <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee">
+  <span style="margin-left:15px;font-size:28px !important;">
+    Buy me a coffee
+  </span>
+</a>
+
+
+  </div><a class="u-url" href="/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">alebian&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Alejandro Bezdjian</li><li><a class="u-email" href="mailto:alebezdjian@gmail.com">alebezdjian@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.linkedin.com/in/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.twitter.com/alebezdjian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">alebezdjian</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Alejandro Bezdjian&#39;s technical blog about programming.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
