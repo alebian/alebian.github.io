@@ -1,7 +1,7 @@
 ---
-title: Re-Wheel #1 - How does Rails' find_each work?
+title: Re-Wheel series part 1 - How does Rails' find_each work?
 published: true
-description:
+description: Understand the Rails' find_each method by rewriting it
 tags: ruby, rails, streams, sql
 layout: post_with_donation
 date: 2020-11-24 00:00:00 -0300
