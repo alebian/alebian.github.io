@@ -8,7 +8,7 @@ date: 2020-11-24 00:00:00 -0300
 categories: ruby rails sql
 ---
 
-Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to "reinventing the wheel", which is something that I don't recommend when writing code professionally, but since it's a very good learning exercise I decided to create a series of posts in which I'll try to disect some interesting and commonly used techniques to help you understand them and thus, learn.
+Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to "reinventing the wheel", which is something that I don't recommend when writing code professionally, but since it's a very good learning exercise I decided to create a series of posts in which I'll try to dissect some interesting and commonly used techniques to help you understand them and thus, learn.
 
 For the first post of my Re-Wheel series I wanted to talk about ActiveRecord's [find_each](https://apidock.com/rails/ActiveRecord/Batches/find_each). This method lets you process database records in batches, which reduces the memory consumption of your app and increases the amount of queries you make (one for each batch). You have to think about memory consumption on every project (not only Rails ones), so you can port this idea to whatever language or framework you are using.
 

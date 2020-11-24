@@ -8,8 +8,8 @@
 <meta property="og:title" content="Re-Wheel series part 1 - How does Rails’ find_each work?" />
 <meta name="author" content="Alejandro Bezdjian" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn." />
-<meta property="og:description" content="Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn." />
+<meta name="description" content="Understand the Rails’ find_each method by rewriting it" />
+<meta property="og:description" content="Understand the Rails’ find_each method by rewriting it" />
 <link rel="canonical" href="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" />
 <meta property="og:url" content="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" />
 <meta property="og:site_name" content="alebian’s blog" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Re-Wheel series part 1 - How does Rails’ find_each work?" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html"},"url":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html","headline":"Re-Wheel series part 1 - How does Rails’ find_each work?","dateModified":"2020-11-24T00:00:00-03:00","datePublished":"2020-11-24T00:00:00-03:00","description":"Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn.","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html"},"url":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html","headline":"Re-Wheel series part 1 - How does Rails’ find_each work?","dateModified":"2020-11-24T00:00:00-03:00","datePublished":"2020-11-24T00:00:00-03:00","description":"Understand the Rails’ find_each method by rewriting it","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
     <!-- Google Analytics -->
@@ -61,7 +61,7 @@
   </header>
 
   <div class="post-content e-content" itemprop="articleBody">
-    <p>Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn.</p>
+    <p>Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to dissect some interesting and commonly used techniques to help you understand them and thus, learn.</p>
 
 <p>For the first post of my Re-Wheel series I wanted to talk about ActiveRecord’s <a href="https://apidock.com/rails/ActiveRecord/Batches/find_each">find_each</a>. This method lets you process database records in batches, which reduces the memory consumption of your app and increases the amount of queries you make (one for each batch). You have to think about memory consumption on every project (not only Rails ones), so you can port this idea to whatever language or framework you are using.</p>
 
