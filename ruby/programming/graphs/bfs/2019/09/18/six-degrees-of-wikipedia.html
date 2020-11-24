@@ -4,7 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
 <title>Six degrees of Wikipedia | alebian’s blog</title>
-<meta name="generator" content="Jekyll v4.0.1" />
+<meta name="generator" content="Jekyll v4.1.1" />
 <meta property="og:title" content="Six degrees of Wikipedia" />
 <meta name="author" content="Alejandro Bezdjian" />
 <meta property="og:locale" content="en_US" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Six degrees of Wikipedia" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html"},"url":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html","headline":"Six degrees of Wikipedia","dateModified":"2019-09-18T00:00:00-03:00","datePublished":"2019-09-18T00:00:00-03:00","description":"Find the degrees of separation between Wikipedia articles","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html"},"url":"https://blog.alebian.com/ruby/programming/graphs/bfs/2019/09/18/six-degrees-of-wikipedia.html","headline":"Six degrees of Wikipedia","dateModified":"2019-09-18T00:00:00-03:00","datePublished":"2019-09-18T00:00:00-03:00","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Find the degrees of separation between Wikipedia articles","@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
     <!-- Google Analytics -->
@@ -73,7 +73,7 @@
   <li>Find the minimum path between 2 articles.</li>
 </ul>
 
-<p>For the first two, we need to fetch an article using HTTP and then, find all the <code class="highlighter-rouge">a</code> tags that reference other articles. Inspecting the HTML we can see that every article has links that we want to skip (like the main page and external links):</p>
+<p>For the first two, we need to fetch an article using HTTP and then, find all the <code class="language-plaintext highlighter-rouge">a</code> tags that reference other articles. Inspecting the HTML we can see that every article has links that we want to skip (like the main page and external links):</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">Services</span>
   <span class="k">class</span> <span class="nc">Wikipedia</span>
@@ -98,14 +98,14 @@
       <span class="k">end</span>
 
       <span class="k">def</span> <span class="nf">internal?</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
-        <span class="n">link</span> <span class="o">=~</span> <span class="sr">/^\/wiki\/*/</span><span class="err"> &amp;&amp; !l</span><span class="sr">in</span><span class="n">k</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">link</span> <span class="o">!=</span> <span class="s1">'/wiki/Main_Page'</span>
+        <span class="n">link</span> <span class="o">=~</span> <span class="sr">/^\/wiki\/*/</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">link</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">link</span> <span class="o">!=</span> <span class="s1">'/wiki/Main_Page'</span>
       <span class="k">end</span>
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>I used the <a href="https://nokogiri.org/">Nokogiri</a> gem to parse the HTML and easily search the <code class="highlighter-rouge">a</code> tags.</p>
+<p>I used the <a href="https://nokogiri.org/">Nokogiri</a> gem to parse the HTML and easily search the <code class="language-plaintext highlighter-rouge">a</code> tags.</p>
 
 <p>Playing with the code I found that it would be nice to have some sort of cache so we don’t loose the data fetched from Wikipedia. I used Redis for this:</p>
 
@@ -167,17 +167,17 @@
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>As you can see I used a queue for adding the nodes in a BFS manner and skipped them if the graph already had the link. I found that the RGL gem didn’t have a search algorithm for unweighted graphs but it did have Dijkstra’s algorithm for weighted ones. It expected a hash with the edge values, but since every edge has the same value and I didn’t want to use unnecesary extra memory, I hacked a class called <code class="highlighter-rouge">EdgeWeightHack</code> taking advantage of Ruby’s duck typing.</p>
+<p>As you can see I used a queue for adding the nodes in a BFS manner and skipped them if the graph already had the link. I found that the RGL gem didn’t have a search algorithm for unweighted graphs but it did have Dijkstra’s algorithm for weighted ones. It expected a hash with the edge values, but since every edge has the same value and I didn’t want to use unnecesary extra memory, I hacked a class called <code class="language-plaintext highlighter-rouge">EdgeWeightHack</code> taking advantage of Ruby’s duck typing.</p>
 
-<p>Now let’s see this in action! Let’s find out how separated is <code class="highlighter-rouge">Chuck Norris</code> from <code class="highlighter-rouge">Computer programming</code>:</p>
+<p>Now let’s see this in action! Let’s find out how separated is <code class="language-plaintext highlighter-rouge">Chuck Norris</code> from <code class="language-plaintext highlighter-rouge">Computer programming</code>:</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">################################################################</span>
 <span class="no">Chuck_Norris</span> <span class="n">is</span> <span class="mi">3</span> <span class="n">degrees</span> <span class="n">separated</span> <span class="n">from</span> <span class="no">Computer_programming</span><span class="o">.</span>
 <span class="c1">################################################################</span>
-<span class="sr">/wiki/</span><span class="err">Ch</span><span class="sr">u</span><span class="n">ck_Norris</span>
-<span class="sr">/wiki/</span><span class="err">R</span><span class="sr">e</span><span class="n">publican_Party_</span><span class="p">(</span><span class="no">United_States</span><span class="p">)</span>
-<span class="sr">/wiki/</span><span class="err">I</span><span class="sr">n</span><span class="n">ternal_Revenue_Service</span>
-<span class="sr">/wiki/</span><span class="err">C</span><span class="sr">om</span><span class="n">puter_programming</span>
+<span class="sr">/wiki/</span><span class="no">Chuck_Norris</span>
+<span class="sr">/wiki/</span><span class="no">Republican_Party_</span><span class="p">(</span><span class="no">United_States</span><span class="p">)</span>
+<span class="sr">/wiki/</span><span class="no">Internal_Revenue_Service</span>
+<span class="sr">/wiki/</span><span class="no">Computer_programming</span>
 <span class="c1">################################################################</span>
 </code></pre></div></div>
 
@@ -232,7 +232,7 @@
 
 <p>Now it’s time to benchmark both solutions and see which one is best:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmarking 100 times
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Benchmarking 100 times
 
        user     system      total        real
 Custom 63.772801   9.894999  73.667800 (249.561173)

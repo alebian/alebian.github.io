@@ -4,7 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
 <title>Implement a kafka like consumer strategy to process records in your database | alebian’s blog</title>
-<meta name="generator" content="Jekyll v4.0.1" />
+<meta name="generator" content="Jekyll v4.1.1" />
 <meta property="og:title" content="Implement a kafka like consumer strategy to process records in your database" />
 <meta name="author" content="Alejandro Bezdjian" />
 <meta property="og:locale" content="en_US" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Implement a kafka like consumer strategy to process records in your database" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html"},"url":"https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html","headline":"Implement a kafka like consumer strategy to process records in your database","dateModified":"2020-11-13T00:00:00-03:00","datePublished":"2020-11-13T00:00:00-03:00","description":"Simple implementation of a kafka like consumer strategy to process records in your database","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html"},"url":"https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html","headline":"Implement a kafka like consumer strategy to process records in your database","dateModified":"2020-11-13T00:00:00-03:00","datePublished":"2020-11-13T00:00:00-03:00","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Simple implementation of a kafka like consumer strategy to process records in your database","@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
     <!-- Google Analytics -->
@@ -68,7 +68,7 @@
 <span class="k">LIMIT</span> <span class="mi">100</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p>Then, it process each row and updates it by flipping the <code class="highlighter-rouge">processed</code>. This simple implementation should work just fine if the worker can process the incoming data as fast as it is generated, but it will start lagging if not (or if you want to re-process all the rows in a reasonable time).</p>
+<p>Then, it process each row and updates it by flipping the <code class="language-plaintext highlighter-rouge">processed</code>. This simple implementation should work just fine if the worker can process the incoming data as fast as it is generated, but it will start lagging if not (or if you want to re-process all the rows in a reasonable time).</p>
 
 <p>The natural thing to do in that case would be to add more workers to parallelize the process. The problem is that the query we are making can lead to problems, for example, since there is no mechanism to stop 2 workers from getting the same rows, some rows can get processed more than once.</p>
 
@@ -94,9 +94,9 @@
 <span class="k">LIMIT</span> <span class="mi">100</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p>The main idea behind this query is to use the <a href="https://en.wikipedia.org/wiki/Modulo_operation">modulo operation</a> to find the “partition”, so <code class="highlighter-rouge">MOD(hash_code, :instances)</code> will return that number (starting from 0).</p>
+<p>The main idea behind this query is to use the <a href="https://en.wikipedia.org/wiki/Modulo_operation">modulo operation</a> to find the “partition”, so <code class="language-plaintext highlighter-rouge">MOD(hash_code, :instances)</code> will return that number (starting from 0).</p>
 
-<p>Now, there is a problem with this query. Since we just added the <code class="highlighter-rouge">hash_code</code> column, there might be a lot of null values. To solve this issue, we can use the <a href="https://www.postgresqltutorial.com/postgresql-coalesce/">coalesce</a> function to turn each null value into a number. The final query should look like this:</p>
+<p>Now, there is a problem with this query. Since we just added the <code class="language-plaintext highlighter-rouge">hash_code</code> column, there might be a lot of null values. To solve this issue, we can use the <a href="https://www.postgresqltutorial.com/postgresql-coalesce/">coalesce</a> function to turn each null value into a number. The final query should look like this:</p>
 
 <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">files</span>
 <span class="k">WHERE</span> <span class="n">processed</span> <span class="o">=</span> <span class="k">false</span> <span class="k">AND</span> <span class="k">MOD</span><span class="p">(</span><span class="n">COALESCE</span><span class="p">(</span><span class="n">hash_code</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">:</span><span class="n">instances</span><span class="p">)</span> <span class="o">=</span> <span class="p">:</span><span class="n">instanceId</span>

@@ -4,7 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
 <title>Pascal’s triangle in Ruby for fun | alebian’s blog</title>
-<meta name="generator" content="Jekyll v4.0.1" />
+<meta name="generator" content="Jekyll v4.1.1" />
 <meta property="og:title" content="Pascal’s triangle in Ruby for fun" />
 <meta name="author" content="Alejandro Bezdjian" />
 <meta property="og:locale" content="en_US" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Pascal’s triangle in Ruby for fun" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html"},"url":"https://blog.alebian.com/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html","headline":"Pascal’s triangle in Ruby for fun","dateModified":"2019-09-07T00:00:00-03:00","datePublished":"2019-09-07T00:00:00-03:00","description":"Pascal’s triangle implementation in Ruby","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html"},"url":"https://blog.alebian.com/ruby/math/fibonacci/programming/2019/09/07/pascals-triangle-in-ruby-for-fun.html","headline":"Pascal’s triangle in Ruby for fun","dateModified":"2019-09-07T00:00:00-03:00","datePublished":"2019-09-07T00:00:00-03:00","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Pascal’s triangle implementation in Ruby","@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
     <!-- Google Analytics -->
@@ -154,10 +154,10 @@
 
 <p>Coefficients of the expansion of a binomial raised to a positive integer N appear in the Nth row of the Pascal’s triangle:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(x + y)^2 = x^2 + 2xy + y^2 = 1*x^2 + 2*xy + 1*y^2
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(x + y)^2 = x^2 + 2xy + y^2 = 1*x^2 + 2*xy + 1*y^2
 </code></pre></div></div>
 
-<p>With this not only wee can get the coefficients, but calculate <code class="highlighter-rouge">(x+y)^n</code>:</p>
+<p>With this not only wee can get the coefficients, but calculate <code class="language-plaintext highlighter-rouge">(x+y)^n</code>:</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">binomial_power</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
   <span class="n">coefficients</span> <span class="o">=</span> <span class="vi">@triangle</span><span class="p">.</span><span class="nf">get_file</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
@@ -173,7 +173,7 @@
 
 <h2 id="powers-of-2">Powers of 2</h2>
 
-<p>If we sum each number of the Nth row of the triangle we get <code class="highlighter-rouge">2^n</code>!</p>
+<p>If we sum each number of the Nth row of the triangle we get <code class="language-plaintext highlighter-rouge">2^n</code>!</p>
 
 <p><img src="/assets/images/pascal/5_2n.png" alt="Powers of 2" /></p>
 
@@ -220,7 +220,7 @@
 
 <h3 id="perfect-squares">Perfect squares</h3>
 
-<p>Perfect squares are numbers that can be expressed as the product of two equal integers, for example 4 is a perfect square becase you can express it like <code class="highlighter-rouge">2^2 = 4</code>. The perfect squares are found in the third column of the triangle, the trick is that you have to sum the element of the previous row:</p>
+<p>Perfect squares are numbers that can be expressed as the product of two equal integers, for example 4 is a perfect square becase you can express it like <code class="language-plaintext highlighter-rouge">2^2 = 4</code>. The perfect squares are found in the third column of the triangle, the trick is that you have to sum the element of the previous row:</p>
 
 <p><img src="/assets/images/pascal/7_series.png" alt="Perfect squares" /></p>
 

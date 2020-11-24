@@ -4,7 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
 <title>Re-Wheel series part 1 - How does Rails’ find_each work? | alebian’s blog</title>
-<meta name="generator" content="Jekyll v4.0.1" />
+<meta name="generator" content="Jekyll v4.1.1" />
 <meta property="og:title" content="Re-Wheel series part 1 - How does Rails’ find_each work?" />
 <meta name="author" content="Alejandro Bezdjian" />
 <meta property="og:locale" content="en_US" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Re-Wheel series part 1 - How does Rails’ find_each work?" />
 <script type="application/ld+json">
-{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html"},"url":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html","headline":"Re-Wheel series part 1 - How does Rails’ find_each work?","dateModified":"2020-11-24T00:00:00-03:00","datePublished":"2020-11-24T00:00:00-03:00","description":"Understand the Rails’ find_each method by rewriting it","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html"},"url":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html","headline":"Re-Wheel series part 1 - How does Rails’ find_each work?","dateModified":"2020-11-24T00:00:00-03:00","datePublished":"2020-11-24T00:00:00-03:00","author":{"@type":"Person","name":"Alejandro Bezdjian"},"description":"Understand the Rails’ find_each method by rewriting it","@type":"BlogPosting","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
     <!-- Google Analytics -->
@@ -65,11 +65,11 @@
 
 <p>For the first post of my Re-Wheel series I wanted to talk about ActiveRecord’s <a href="https://apidock.com/rails/ActiveRecord/Batches/find_each">find_each</a>. This method lets you process database records in batches, which reduces the memory consumption of your app and increases the amount of queries you make (one for each batch). You have to think about memory consumption on every project (not only Rails ones), so you can port this idea to whatever language or framework you are using.</p>
 
-<p>Let’s say you have 1 million users and you want to print all their emails on the screen, you could do something like <code class="highlighter-rouge">User.all.each { |user| puts user.email }</code> but this will load all the records in memory (which is not good). The equivalent and memory efficient way to do it is: <code class="highlighter-rouge">User.all.find_each { |user| puts user.email }</code>.</p>
+<p>Let’s say you have 1 million users and you want to print all their emails on the screen, you could do something like <code class="language-plaintext highlighter-rouge">User.all.each { |user| puts user.email }</code> but this will load all the records in memory (which is not good). The equivalent and memory efficient way to do it is: <code class="language-plaintext highlighter-rouge">User.all.find_each { |user| puts user.email }</code>.</p>
 
-<p>But how is this implemented? Well, if you use pagination in your index methods with gems like <a href="https://github.com/ddnexus/pagy">pagy</a>, <a href="https://github.com/kaminari/kaminari">kaminari</a> or <a href="https://github.com/mislav/will_paginate">will_paginate</a> you will find that the same idea is happening here, they are using the power of <a href="https://www.postgresql.org/docs/9.3/queries-limit.html">SQL’s LIMIT and OFFSET</a> to fetch only a portion of the data each time. So in the 1 million users example, <code class="highlighter-rouge">find_each</code> will perform 1000 thousand queries with a limit of 1000 while changing the offset properly so we don’t miss any record.</p>
+<p>But how is this implemented? Well, if you use pagination in your index methods with gems like <a href="https://github.com/ddnexus/pagy">pagy</a>, <a href="https://github.com/kaminari/kaminari">kaminari</a> or <a href="https://github.com/mislav/will_paginate">will_paginate</a> you will find that the same idea is happening here, they are using the power of <a href="https://www.postgresql.org/docs/9.3/queries-limit.html">SQL’s LIMIT and OFFSET</a> to fetch only a portion of the data each time. So in the 1 million users example, <code class="language-plaintext highlighter-rouge">find_each</code> will perform 1000 thousand queries with a limit of 1000 while changing the offset properly so we don’t miss any record.</p>
 
-<p>There is another cool thing about the <code class="highlighter-rouge">find_each</code> method. As you can see, it receives a block which is executed with each row, making use of the powerful Ruby’s <a href="https://blog.appsignal.com/2018/05/29/ruby-magic-enumerable-and-enumerator.html">enumerable</a> module.</p>
+<p>There is another cool thing about the <code class="language-plaintext highlighter-rouge">find_each</code> method. As you can see, it receives a block which is executed with each row, making use of the powerful Ruby’s <a href="https://blog.appsignal.com/2018/05/29/ruby-magic-enumerable-and-enumerator.html">enumerable</a> module.</p>
 
 <p>There is a small limitation in this method, it doesn’t work with the <a href="https://apidock.com/rails/ActiveRecord/Calculations/pluck">pluck</a> method. Since we are doing this to reduce the memory footprint, selecting only the required columns from the table is a reasonable thing to do, so let’s add that feature in our implementation.</p>
 
@@ -135,14 +135,14 @@
 <span class="n">stream</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">user</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">}</span> <span class="c1"># pluck returns an array</span>
 </code></pre></div></div>
 
-<p>The main idea is to have 2 pointers, one for the current element in the batch and one for the overall position (used for the offset). The <code class="highlighter-rouge">fetch_data</code> method performs the query setting the limit and offset and selecting the columns if the pluck parameter was given. The result is then stored inside a buffer in memory and sets the cursor to point the first element on it.</p>
+<p>The main idea is to have 2 pointers, one for the current element in the batch and one for the overall position (used for the offset). The <code class="language-plaintext highlighter-rouge">fetch_data</code> method performs the query setting the limit and offset and selecting the columns if the pluck parameter was given. The result is then stored inside a buffer in memory and sets the cursor to point the first element on it.</p>
 
-<p>When creating the instance, I set <code class="highlighter-rouge">@buffer_cursor = @batch_size</code> and then in the <code class="highlighter-rouge">read_from_buffer_or_fetch</code> method I check for this condition before making the query. This allows me to lazy initialize the object, to perform the query only when it’s really needed. There are other ways of achieving lazyness but I think this one makes the code look clean.</p>
+<p>When creating the instance, I set <code class="language-plaintext highlighter-rouge">@buffer_cursor = @batch_size</code> and then in the <code class="language-plaintext highlighter-rouge">read_from_buffer_or_fetch</code> method I check for this condition before making the query. This allows me to lazy initialize the object, to perform the query only when it’s really needed. There are other ways of achieving lazyness but I think this one makes the code look clean.</p>
 
-<p>As you can see, I included the <code class="highlighter-rouge">Enumerable</code> module so I had to implement the <code class="highlighter-rouge">each</code> method which iterates over all the elements. In it, I made a few (non crucial) tricks:</p>
+<p>As you can see, I included the <code class="language-plaintext highlighter-rouge">Enumerable</code> module so I had to implement the <code class="language-plaintext highlighter-rouge">each</code> method which iterates over all the elements. In it, I made a few (non crucial) tricks:</p>
 
 <ul>
-  <li>First I check if a block was given. If it was, I simply <a href="https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/18-blocks/lessons/54-yield">yield</a> the row to the block. But if the block is not given, and here is the trick, I call the <a href="https://apidock.com/ruby/Object/to_enum">to_enum</a> method which creates a new enumerator from my method <code class="highlighter-rouge">each</code>. This last part is important because now I can chain my enumerator with others and do things like: <code class="highlighter-rouge">stream.each.with_index { |row, idx| puts idx }</code>.</li>
+  <li>First I check if a block was given. If it was, I simply <a href="https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/18-blocks/lessons/54-yield">yield</a> the row to the block. But if the block is not given, and here is the trick, I call the <a href="https://apidock.com/ruby/Object/to_enum">to_enum</a> method which creates a new enumerator from my method <code class="language-plaintext highlighter-rouge">each</code>. This last part is important because now I can chain my enumerator with others and do things like: <code class="language-plaintext highlighter-rouge">stream.each.with_index { |row, idx| puts idx }</code>.</li>
   <li>Reset the buffer and cursors to allow multiple iterations of the collection. Without this, if I want to iterate over the elements again I have to create a new object.</li>
 </ul>
 

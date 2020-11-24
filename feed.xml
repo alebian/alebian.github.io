@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.1">Jekyll</generator><link href="https://blog.alebian.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://blog.alebian.com/" rel="alternate" type="text/html" /><updated>2020-11-24T10:47:27-03:00</updated><id>https://blog.alebian.com/feed.xml</id><title type="html">alebian’s blog</title><subtitle>Alejandro Bezdjian's technical blog about programming.</subtitle><author><name>Alejandro Bezdjian</name></author><entry><title type="html">Re-Wheel series part 1 - How does Rails’ find_each work?</title><link href="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" rel="alternate" type="text/html" title="Re-Wheel series part 1 - How does Rails’ find_each work?" /><published>2020-11-24T00:00:00-03:00</published><updated>2020-11-24T00:00:00-03:00</updated><id>https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work</id><content type="html" xml:base="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html">&lt;p&gt;Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to dissect some interesting and commonly used techniques to help you understand them and thus, learn.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="https://blog.alebian.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://blog.alebian.com/" rel="alternate" type="text/html" /><updated>2020-11-24T17:59:20-03:00</updated><id>https://blog.alebian.com/feed.xml</id><title type="html">alebian’s blog</title><subtitle>Alejandro Bezdjian's technical blog about programming.</subtitle><author><name>Alejandro Bezdjian</name></author><entry><title type="html">Re-Wheel series part 1 - How does Rails’ find_each work?</title><link href="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" rel="alternate" type="text/html" title="Re-Wheel series part 1 - How does Rails’ find_each work?" /><published>2020-11-24T00:00:00-03:00</published><updated>2020-11-24T00:00:00-03:00</updated><id>https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work</id><content type="html" xml:base="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html">&lt;p&gt;Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to dissect some interesting and commonly used techniques to help you understand them and thus, learn.&lt;/p&gt;
 
 &lt;p&gt;For the first post of my Re-Wheel series I wanted to talk about ActiveRecord’s &lt;a href=&quot;https://apidock.com/rails/ActiveRecord/Batches/find_each&quot;&gt;find_each&lt;/a&gt;. This method lets you process database records in batches, which reduces the memory consumption of your app and increases the amount of queries you make (one for each batch). You have to think about memory consumption on every project (not only Rails ones), so you can port this idea to whatever language or framework you are using.&lt;/p&gt;
 
-&lt;p&gt;Let’s say you have 1 million users and you want to print all their emails on the screen, you could do something like &lt;code class=&quot;highlighter-rouge&quot;&gt;User.all.each { |user| puts user.email }&lt;/code&gt; but this will load all the records in memory (which is not good). The equivalent and memory efficient way to do it is: &lt;code class=&quot;highlighter-rouge&quot;&gt;User.all.find_each { |user| puts user.email }&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Let’s say you have 1 million users and you want to print all their emails on the screen, you could do something like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;User.all.each { |user| puts user.email }&lt;/code&gt; but this will load all the records in memory (which is not good). The equivalent and memory efficient way to do it is: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;User.all.find_each { |user| puts user.email }&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;But how is this implemented? Well, if you use pagination in your index methods with gems like &lt;a href=&quot;https://github.com/ddnexus/pagy&quot;&gt;pagy&lt;/a&gt;, &lt;a href=&quot;https://github.com/kaminari/kaminari&quot;&gt;kaminari&lt;/a&gt; or &lt;a href=&quot;https://github.com/mislav/will_paginate&quot;&gt;will_paginate&lt;/a&gt; you will find that the same idea is happening here, they are using the power of &lt;a href=&quot;https://www.postgresql.org/docs/9.3/queries-limit.html&quot;&gt;SQL’s LIMIT and OFFSET&lt;/a&gt; to fetch only a portion of the data each time. So in the 1 million users example, &lt;code class=&quot;highlighter-rouge&quot;&gt;find_each&lt;/code&gt; will perform 1000 thousand queries with a limit of 1000 while changing the offset properly so we don’t miss any record.&lt;/p&gt;
+&lt;p&gt;But how is this implemented? Well, if you use pagination in your index methods with gems like &lt;a href=&quot;https://github.com/ddnexus/pagy&quot;&gt;pagy&lt;/a&gt;, &lt;a href=&quot;https://github.com/kaminari/kaminari&quot;&gt;kaminari&lt;/a&gt; or &lt;a href=&quot;https://github.com/mislav/will_paginate&quot;&gt;will_paginate&lt;/a&gt; you will find that the same idea is happening here, they are using the power of &lt;a href=&quot;https://www.postgresql.org/docs/9.3/queries-limit.html&quot;&gt;SQL’s LIMIT and OFFSET&lt;/a&gt; to fetch only a portion of the data each time. So in the 1 million users example, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;find_each&lt;/code&gt; will perform 1000 thousand queries with a limit of 1000 while changing the offset properly so we don’t miss any record.&lt;/p&gt;
 
-&lt;p&gt;There is another cool thing about the &lt;code class=&quot;highlighter-rouge&quot;&gt;find_each&lt;/code&gt; method. As you can see, it receives a block which is executed with each row, making use of the powerful Ruby’s &lt;a href=&quot;https://blog.appsignal.com/2018/05/29/ruby-magic-enumerable-and-enumerator.html&quot;&gt;enumerable&lt;/a&gt; module.&lt;/p&gt;
+&lt;p&gt;There is another cool thing about the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;find_each&lt;/code&gt; method. As you can see, it receives a block which is executed with each row, making use of the powerful Ruby’s &lt;a href=&quot;https://blog.appsignal.com/2018/05/29/ruby-magic-enumerable-and-enumerator.html&quot;&gt;enumerable&lt;/a&gt; module.&lt;/p&gt;
 
 &lt;p&gt;There is a small limitation in this method, it doesn’t work with the &lt;a href=&quot;https://apidock.com/rails/ActiveRecord/Calculations/pluck&quot;&gt;pluck&lt;/a&gt; method. Since we are doing this to reduce the memory footprint, selecting only the required columns from the table is a reasonable thing to do, so let’s add that feature in our implementation.&lt;/p&gt;
 
@@ -72,14 +72,14 @@
 &lt;span class=&quot;n&quot;&gt;stream&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# pluck returns an array&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;The main idea is to have 2 pointers, one for the current element in the batch and one for the overall position (used for the offset). The &lt;code class=&quot;highlighter-rouge&quot;&gt;fetch_data&lt;/code&gt; method performs the query setting the limit and offset and selecting the columns if the pluck parameter was given. The result is then stored inside a buffer in memory and sets the cursor to point the first element on it.&lt;/p&gt;
+&lt;p&gt;The main idea is to have 2 pointers, one for the current element in the batch and one for the overall position (used for the offset). The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fetch_data&lt;/code&gt; method performs the query setting the limit and offset and selecting the columns if the pluck parameter was given. The result is then stored inside a buffer in memory and sets the cursor to point the first element on it.&lt;/p&gt;
 
-&lt;p&gt;When creating the instance, I set &lt;code class=&quot;highlighter-rouge&quot;&gt;@buffer_cursor = @batch_size&lt;/code&gt; and then in the &lt;code class=&quot;highlighter-rouge&quot;&gt;read_from_buffer_or_fetch&lt;/code&gt; method I check for this condition before making the query. This allows me to lazy initialize the object, to perform the query only when it’s really needed. There are other ways of achieving lazyness but I think this one makes the code look clean.&lt;/p&gt;
+&lt;p&gt;When creating the instance, I set &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@buffer_cursor = @batch_size&lt;/code&gt; and then in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read_from_buffer_or_fetch&lt;/code&gt; method I check for this condition before making the query. This allows me to lazy initialize the object, to perform the query only when it’s really needed. There are other ways of achieving lazyness but I think this one makes the code look clean.&lt;/p&gt;
 
-&lt;p&gt;As you can see, I included the &lt;code class=&quot;highlighter-rouge&quot;&gt;Enumerable&lt;/code&gt; module so I had to implement the &lt;code class=&quot;highlighter-rouge&quot;&gt;each&lt;/code&gt; method which iterates over all the elements. In it, I made a few (non crucial) tricks:&lt;/p&gt;
+&lt;p&gt;As you can see, I included the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Enumerable&lt;/code&gt; module so I had to implement the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;each&lt;/code&gt; method which iterates over all the elements. In it, I made a few (non crucial) tricks:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;First I check if a block was given. If it was, I simply &lt;a href=&quot;https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/18-blocks/lessons/54-yield&quot;&gt;yield&lt;/a&gt; the row to the block. But if the block is not given, and here is the trick, I call the &lt;a href=&quot;https://apidock.com/ruby/Object/to_enum&quot;&gt;to_enum&lt;/a&gt; method which creates a new enumerator from my method &lt;code class=&quot;highlighter-rouge&quot;&gt;each&lt;/code&gt;. This last part is important because now I can chain my enumerator with others and do things like: &lt;code class=&quot;highlighter-rouge&quot;&gt;stream.each.with_index { |row, idx| puts idx }&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;First I check if a block was given. If it was, I simply &lt;a href=&quot;https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/18-blocks/lessons/54-yield&quot;&gt;yield&lt;/a&gt; the row to the block. But if the block is not given, and here is the trick, I call the &lt;a href=&quot;https://apidock.com/ruby/Object/to_enum&quot;&gt;to_enum&lt;/a&gt; method which creates a new enumerator from my method &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;each&lt;/code&gt;. This last part is important because now I can chain my enumerator with others and do things like: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;stream.each.with_index { |row, idx| puts idx }&lt;/code&gt;.&lt;/li&gt;
   &lt;li&gt;Reset the buffer and cursors to allow multiple iterations of the collection. Without this, if I want to iterate over the elements again I have to create a new object.&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -90,7 +90,7 @@
 &lt;span class=&quot;k&quot;&gt;LIMIT&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Then, it process each row and updates it by flipping the &lt;code class=&quot;highlighter-rouge&quot;&gt;processed&lt;/code&gt;. This simple implementation should work just fine if the worker can process the incoming data as fast as it is generated, but it will start lagging if not (or if you want to re-process all the rows in a reasonable time).&lt;/p&gt;
+&lt;p&gt;Then, it process each row and updates it by flipping the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;processed&lt;/code&gt;. This simple implementation should work just fine if the worker can process the incoming data as fast as it is generated, but it will start lagging if not (or if you want to re-process all the rows in a reasonable time).&lt;/p&gt;
 
 &lt;p&gt;The natural thing to do in that case would be to add more workers to parallelize the process. The problem is that the query we are making can lead to problems, for example, since there is no mechanism to stop 2 workers from getting the same rows, some rows can get processed more than once.&lt;/p&gt;
 
@@ -116,9 +116,9 @@
 &lt;span class=&quot;k&quot;&gt;LIMIT&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;The main idea behind this query is to use the &lt;a href=&quot;https://en.wikipedia.org/wiki/Modulo_operation&quot;&gt;modulo operation&lt;/a&gt; to find the “partition”, so &lt;code class=&quot;highlighter-rouge&quot;&gt;MOD(hash_code, :instances)&lt;/code&gt; will return that number (starting from 0).&lt;/p&gt;
+&lt;p&gt;The main idea behind this query is to use the &lt;a href=&quot;https://en.wikipedia.org/wiki/Modulo_operation&quot;&gt;modulo operation&lt;/a&gt; to find the “partition”, so &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MOD(hash_code, :instances)&lt;/code&gt; will return that number (starting from 0).&lt;/p&gt;
 
-&lt;p&gt;Now, there is a problem with this query. Since we just added the &lt;code class=&quot;highlighter-rouge&quot;&gt;hash_code&lt;/code&gt; column, there might be a lot of null values. To solve this issue, we can use the &lt;a href=&quot;https://www.postgresqltutorial.com/postgresql-coalesce/&quot;&gt;coalesce&lt;/a&gt; function to turn each null value into a number. The final query should look like this:&lt;/p&gt;
+&lt;p&gt;Now, there is a problem with this query. Since we just added the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;hash_code&lt;/code&gt; column, there might be a lot of null values. To solve this issue, we can use the &lt;a href=&quot;https://www.postgresqltutorial.com/postgresql-coalesce/&quot;&gt;coalesce&lt;/a&gt; function to turn each null value into a number. The final query should look like this:&lt;/p&gt;
 
 &lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;files&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;processed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;false&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;COALESCE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hash_code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;instances&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;instanceId&lt;/span&gt;
@@ -315,7 +315,7 @@
   &lt;li&gt;Find the minimum path between 2 articles.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;For the first two, we need to fetch an article using HTTP and then, find all the &lt;code class=&quot;highlighter-rouge&quot;&gt;a&lt;/code&gt; tags that reference other articles. Inspecting the HTML we can see that every article has links that we want to skip (like the main page and external links):&lt;/p&gt;
+&lt;p&gt;For the first two, we need to fetch an article using HTTP and then, find all the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a&lt;/code&gt; tags that reference other articles. Inspecting the HTML we can see that every article has links that we want to skip (like the main page and external links):&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Services&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Wikipedia&lt;/span&gt;
@@ -340,14 +340,14 @@
       &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 
       &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;internal?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=~&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/^\/wiki\/*/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt; &amp;amp;&amp;amp; !l&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;in&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;include?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;':'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'/wiki/Main_Page'&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=~&lt;/span&gt; &lt;span class=&quot;sr&quot;&gt;/^\/wiki\/*/&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;link&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;include?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;':'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;link&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'/wiki/Main_Page'&lt;/span&gt;
       &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;I used the &lt;a href=&quot;https://nokogiri.org/&quot;&gt;Nokogiri&lt;/a&gt; gem to parse the HTML and easily search the &lt;code class=&quot;highlighter-rouge&quot;&gt;a&lt;/code&gt; tags.&lt;/p&gt;
+&lt;p&gt;I used the &lt;a href=&quot;https://nokogiri.org/&quot;&gt;Nokogiri&lt;/a&gt; gem to parse the HTML and easily search the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;a&lt;/code&gt; tags.&lt;/p&gt;
 
 &lt;p&gt;Playing with the code I found that it would be nice to have some sort of cache so we don’t loose the data fetched from Wikipedia. I used Redis for this:&lt;/p&gt;
 
@@ -409,17 +409,17 @@
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;As you can see I used a queue for adding the nodes in a BFS manner and skipped them if the graph already had the link. I found that the RGL gem didn’t have a search algorithm for unweighted graphs but it did have Dijkstra’s algorithm for weighted ones. It expected a hash with the edge values, but since every edge has the same value and I didn’t want to use unnecesary extra memory, I hacked a class called &lt;code class=&quot;highlighter-rouge&quot;&gt;EdgeWeightHack&lt;/code&gt; taking advantage of Ruby’s duck typing.&lt;/p&gt;
+&lt;p&gt;As you can see I used a queue for adding the nodes in a BFS manner and skipped them if the graph already had the link. I found that the RGL gem didn’t have a search algorithm for unweighted graphs but it did have Dijkstra’s algorithm for weighted ones. It expected a hash with the edge values, but since every edge has the same value and I didn’t want to use unnecesary extra memory, I hacked a class called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;EdgeWeightHack&lt;/code&gt; taking advantage of Ruby’s duck typing.&lt;/p&gt;
 
-&lt;p&gt;Now let’s see this in action! Let’s find out how separated is &lt;code class=&quot;highlighter-rouge&quot;&gt;Chuck Norris&lt;/code&gt; from &lt;code class=&quot;highlighter-rouge&quot;&gt;Computer programming&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;Now let’s see this in action! Let’s find out how separated is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Chuck Norris&lt;/code&gt; from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Computer programming&lt;/code&gt;:&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;################################################################&lt;/span&gt;
 &lt;span class=&quot;no&quot;&gt;Chuck_Norris&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;degrees&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;separated&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Computer_programming&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;################################################################&lt;/span&gt;
-&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;Ch&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ck_Norris&lt;/span&gt;
-&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;R&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;publican_Party_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;United_States&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;I&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ternal_Revenue_Service&lt;/span&gt;
-&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;om&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;puter_programming&lt;/span&gt;
+&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Chuck_Norris&lt;/span&gt;
+&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Republican_Party_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;United_States&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Internal_Revenue_Service&lt;/span&gt;
+&lt;span class=&quot;sr&quot;&gt;/wiki/&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Computer_programming&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;################################################################&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -474,7 +474,7 @@
 
 &lt;p&gt;Now it’s time to benchmark both solutions and see which one is best:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Benchmarking 100 times
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Benchmarking 100 times
 
        user     system      total        real
 Custom 63.772801   9.894999  73.667800 (249.561173)
@@ -521,7 +521,7 @@ Memory usage of Graph ----------------------------
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Now, using our &lt;code class=&quot;highlighter-rouge&quot;&gt;is_prime&lt;/code&gt; function we can do:&lt;/p&gt;
+&lt;p&gt;Now, using our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;is_prime&lt;/code&gt; function we can do:&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;prime_generator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
@@ -751,10 +751,10 @@ Memory usage of Graph ----------------------------
 
 &lt;p&gt;Coefficients of the expansion of a binomial raised to a positive integer N appear in the Nth row of the Pascal’s triangle:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;(x + y)^2 = x^2 + 2xy + y^2 = 1*x^2 + 2*xy + 1*y^2
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;(x + y)^2 = x^2 + 2xy + y^2 = 1*x^2 + 2*xy + 1*y^2
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;With this not only wee can get the coefficients, but calculate &lt;code class=&quot;highlighter-rouge&quot;&gt;(x+y)^n&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;With this not only wee can get the coefficients, but calculate &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(x+y)^n&lt;/code&gt;:&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;binomial_power&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
   &lt;span class=&quot;n&quot;&gt;coefficients&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@triangle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -770,7 +770,7 @@ Memory usage of Graph ----------------------------
 
 &lt;h2 id=&quot;powers-of-2&quot;&gt;Powers of 2&lt;/h2&gt;
 
-&lt;p&gt;If we sum each number of the Nth row of the triangle we get &lt;code class=&quot;highlighter-rouge&quot;&gt;2^n&lt;/code&gt;!&lt;/p&gt;
+&lt;p&gt;If we sum each number of the Nth row of the triangle we get &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2^n&lt;/code&gt;!&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/pascal/5_2n.png&quot; alt=&quot;Powers of 2&quot; /&gt;&lt;/p&gt;
 
@@ -817,7 +817,7 @@ Memory usage of Graph ----------------------------
 
 &lt;h3 id=&quot;perfect-squares&quot;&gt;Perfect squares&lt;/h3&gt;
 
-&lt;p&gt;Perfect squares are numbers that can be expressed as the product of two equal integers, for example 4 is a perfect square becase you can express it like &lt;code class=&quot;highlighter-rouge&quot;&gt;2^2 = 4&lt;/code&gt;. The perfect squares are found in the third column of the triangle, the trick is that you have to sum the element of the previous row:&lt;/p&gt;
+&lt;p&gt;Perfect squares are numbers that can be expressed as the product of two equal integers, for example 4 is a perfect square becase you can express it like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2^2 = 4&lt;/code&gt;. The perfect squares are found in the third column of the triangle, the trick is that you have to sum the element of the previous row:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/assets/images/pascal/7_series.png&quot; alt=&quot;Perfect squares&quot; /&gt;&lt;/p&gt;
 
@@ -959,7 +959,7 @@ Memory usage of Graph ----------------------------
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;And finally run: &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec rake dictum:document&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;And finally run: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bundle exec rake dictum:document&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;That was really simple wasn’t it? You can read the gem’s &lt;a href=&quot;https://github.com/alebian/dictum/blob/master/README.md&quot;&gt;README&lt;/a&gt; if you need more information.&lt;/p&gt;
 
