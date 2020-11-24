@@ -2,7 +2,6 @@ retryable https://gist.github.com/alebian/1bd980b683987846b9301e8619a81f55
 chainable objects https://gist.github.com/alebian/2b04ef58750eef627aa16d1f4a96f74c
 gracefully https://gist.github.com/alebian/0b5c4432f7f8dcff00309870f0c2c9b8
 rspec matcher https://gist.github.com/alebian/14d9ff254caab6b3e2de7200e4e767ae
-database row stream https://gist.github.com/alebian/aa2b1f926243e178f6ce72b60f172741
 configuration class https://gist.github.com/alebian/3981c84d4060ce3b322646e460343d1d
 crear gema
 firuta

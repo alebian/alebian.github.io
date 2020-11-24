@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Re-Wheel | alebian’s blog</title>
+<meta name="generator" content="Jekyll v4.0.1" />
+<meta property="og:title" content="Re-Wheel" />
+<meta name="author" content="Alejandro Bezdjian" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn." />
+<meta property="og:description" content="Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn." />
+<link rel="canonical" href="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" />
+<meta property="og:url" content="https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" />
+<meta property="og:site_name" content="alebian’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-24T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Re-Wheel" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html"},"url":"https://blog.alebian.com/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html","headline":"Re-Wheel","dateModified":"2020-11-24T00:00:00-03:00","datePublished":"2020-11-24T00:00:00-03:00","description":"Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn.","author":{"@type":"Person","name":"Alejandro Bezdjian"},"@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.alebian.com/feed.xml" title="alebian's blog" />
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-159130156-1', 'auto');
+	ga('send', 'pageview', { 'page': location.pathname + location.search + location.hash});
+	ga('set', 'anonymizeIp', false);
+    </script>
+    <!-- End Google Analytics -->
+    </head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">alebian&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a><a class="page-link" href="/featured_content/">Featured content</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Re-Wheel</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2020-11-24T00:00:00-03:00" itemprop="datePublished">Nov 24, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Over the years I found that in order to learn something I have to understand it. For software concepts, this means that sometimes I write code that has already been written, and probably much better. This is usually referred to “reinventing the wheel”, which is something that I don’t recommend when writing code professionally, but since it’s a very good learning exercise I decided to create a series of posts in which I’ll try to disect some interesting and commonly used techniques to help you understand them and thus, learn.</p>
+
+<p>For the first post of my Re-Wheel series I wanted to talk about ActiveRecord’s <a href="https://apidock.com/rails/ActiveRecord/Batches/find_each">find_each</a>. This method lets you process database records in batches, which reduces the memory consumption of your app and increases the amount of queries you make (one for each batch). You have to think about memory consumption on every project (not only Rails ones), so you can port this idea to whatever language or framework you are using.</p>
+
+<p>Let’s say you have 1 million users and you want to print all their emails on the screen, you could do something like <code class="highlighter-rouge">User.all.each { |user| puts user.email }</code> but this will load all the records in memory (which is not good). The equivalent and memory efficient way to do it is: <code class="highlighter-rouge">User.all.find_each { |user| puts user.email }</code>.</p>
+
+<p>But how is this implemented? Well, if you use pagination in your index methods with gems like <a href="https://github.com/ddnexus/pagy">pagy</a>, <a href="https://github.com/kaminari/kaminari">kaminari</a> or <a href="https://github.com/mislav/will_paginate">will_paginate</a> you will find that the same idea is happening here, they are using the power of <a href="https://www.postgresql.org/docs/9.3/queries-limit.html">SQL’s LIMIT and OFFSET</a> to fetch only a portion of the data each time. So in the 1 million users example, <code class="highlighter-rouge">find_each</code> will perform 1000 thousand queries with a limit of 1000 while changing the offset properly so we don’t miss any record.</p>
+
+<p>There is another cool thing about the <code class="highlighter-rouge">find_each</code> method. As you can see, it receives a block which is executed with each row, making use of the powerful Ruby’s <a href="https://blog.appsignal.com/2018/05/29/ruby-magic-enumerable-and-enumerator.html">enumerable</a> module.</p>
+
+<p>There is a small limitation in this method, it doesn’t work with the <a href="https://apidock.com/rails/ActiveRecord/Calculations/pluck">pluck</a> method. Since we are doing this to reduce the memory footprint, selecting only the required columns from the table is a reasonable thing to do, so let’s add that feature in our implementation.</p>
+
+<p>I’ll show you the code I wrote and then explain each part:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">DatabaseStream</span>
+  <span class="kp">include</span> <span class="no">Enumerable</span>
+
+  <span class="no">DEFAULT_BATCH_SIZE</span> <span class="o">=</span> <span class="mi">1000</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{})</span>
+    <span class="vi">@sql</span> <span class="o">=</span> <span class="n">sql</span>
+    <span class="vi">@pluck</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="ss">:pluck</span><span class="p">]</span>
+    <span class="vi">@batch_size</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="ss">:batch_size</span><span class="p">]</span> <span class="o">||</span> <span class="no">DEFAULT_BATCH_SIZE</span>
+    <span class="n">reset_cursors!</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">each</span>
+    <span class="k">if</span> <span class="nb">block_given?</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">row</span> <span class="o">=</span> <span class="n">read_from_buffer_or_fetch</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">row</span>
+      <span class="k">end</span>
+      <span class="n">reset_cursors!</span>
+    <span class="k">else</span>
+      <span class="n">to_enum</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">reset_cursors!</span>
+    <span class="vi">@gobal_cursor</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="vi">@buffer_cursor</span> <span class="o">=</span> <span class="vi">@batch_size</span>
+    <span class="vi">@buffer</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">read_from_buffer_or_fetch</span>
+    <span class="n">fetch_data</span> <span class="k">if</span> <span class="vi">@buffer_cursor</span> <span class="o">==</span> <span class="vi">@batch_size</span>
+
+    <span class="n">row</span> <span class="o">=</span> <span class="vi">@buffer</span><span class="p">[</span><span class="vi">@buffer_cursor</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kp">nil</span> <span class="k">unless</span> <span class="n">row</span>
+
+    <span class="vi">@gobal_cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="vi">@buffer_cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">row</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">fetch_data</span>
+    <span class="vi">@buffer</span> <span class="o">=</span> <span class="vi">@sql</span><span class="p">.</span><span class="nf">limit</span><span class="p">(</span><span class="vi">@batch_size</span><span class="p">).</span><span class="nf">offset</span><span class="p">(</span><span class="vi">@gobal_cursor</span><span class="p">)</span>
+    <span class="vi">@buffer</span> <span class="o">=</span> <span class="vi">@buffer</span><span class="p">.</span><span class="nf">pluck</span><span class="p">(</span><span class="vi">@pluck</span><span class="p">)</span> <span class="k">if</span> <span class="vi">@pluck</span><span class="p">.</span><span class="nf">present?</span>
+    <span class="vi">@buffer_cursor</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>To test this code you can run:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">query</span> <span class="o">=</span> <span class="no">User</span><span class="p">.</span><span class="nf">all</span>
+<span class="n">stream</span> <span class="o">=</span> <span class="no">DatabaseStream</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="n">stream</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">user</span><span class="p">.</span><span class="nf">email</span> <span class="p">}</span>
+
+<span class="n">stream</span> <span class="o">=</span> <span class="no">DatabaseStream</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="ss">batch_size: </span><span class="mi">100</span><span class="p">,</span> <span class="ss">pluck: </span><span class="s1">'id, email'</span><span class="p">)</span> <span class="c1"># pluck: %i[id, email] also works</span>
+<span class="n">stream</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">user</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">}</span> <span class="c1"># pluck returns an array</span>
+</code></pre></div></div>
+
+<p>The main idea is to have 2 pointers, one for the current element in the batch and one for the overall position (used for the offset). The <code class="highlighter-rouge">fetch_data</code> method performs the query setting the limit and offset and selecting the columns if the pluck parameter was given. The result is then stored inside a buffer in memory and sets the cursor to point the first element on it.</p>
+
+<p>When creating the instance, I set <code class="highlighter-rouge">@buffer_cursor = @batch_size</code> and then in the <code class="highlighter-rouge">read_from_buffer_or_fetch</code> method I check for this condition before making the query. This allows me to lazy initialize the object, to perform the query only when it’s really needed. There are other ways of achieving lazyness but I think this one makes the code look clean.</p>
+
+<p>As you can see, I included the <code class="highlighter-rouge">Enumerable</code> module so I had to implement the <code class="highlighter-rouge">each</code> method which iterates over all the elements. In it, I made a few (non crucial) tricks:</p>
+
+<ul>
+  <li>First I check if a block was given. If it was, I simply <a href="https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/18-blocks/lessons/54-yield">yield</a> the row to the block. But if the block is not given, and here is the trick, I call the <a href="https://apidock.com/ruby/Object/to_enum">to_enum</a> method which creates a new enumerator from my method <code class="highlighter-rouge">each</code>. This last part is important because now I can chain my enumerator with others and do things like: <code class="highlighter-rouge">stream.each.with_index { |row, idx| puts idx }</code>.</li>
+  <li>Reset the buffer and cursors to allow multiple iterations of the collection. Without this, if I want to iterate over the elements again I have to create a new object.</li>
+</ul>
+
+<p>And that’s all for this Re-Wheel part, I hope you can pick up a trick or two from this!</p>
+
+
+<style>
+  .bmc-button img {
+    height: 34px !important;
+    width: 35px !important;
+    margin-bottom: 1px !important;
+    box-shadow: none !important;
+    border: none !important;
+    vertical-align: middle !important;
+  }
+
+  .bmc-button {
+    padding: 7px 10px 7px 10px !important;
+    line-height: 35px !important;
+    height: 51px !important;
+    min-width: 217px !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    color: #ffffff !important;
+    background-color: #5F7FFF !important;
+    border-radius: 5px !important;
+    border: 1px solid transparent !important;
+    padding: 7px 10px 7px 10px !important;
+    font-size: 28px !important;
+    letter-spacing: 0.6px !important;
+    box-shadow: 0px 1px 2px rgba(190, 190, 190, 0.5) !important;
+    -webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+    margin: 0 auto !important;
+    font-family: 'Cookie', cursive !important;
+    -webkit-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+    -o-transition: 0.3s all linear !important;
+    -webkit-transition: 0.3s all linear !important;
+    -moz-transition: 0.3s all linear !important;
+    -ms-transition: 0.3s all linear !important;
+    transition: 0.3s all linear !important;
+  }
+
+  .bmc-button:hover,
+  .bmc-button:active,
+  .bmc-button:focus {
+    -webkit-box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+    text-decoration: none !important;
+    box-shadow: 0px 1px 2px 2px rgba(190, 190, 190, 0.5) !important;
+    opacity: 0.85 !important;
+    color: #ffffff !important;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css?family=Cookie" rel="stylesheet">
+<a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/alebian">
+  <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee">
+  <span style="margin-left:15px;font-size:28px !important;">
+    Buy me a coffee
+  </span>
+</a>
+
+
+  </div><a class="u-url" href="/ruby/rails/sql/2020/11/24/re-wheel-1-how-does-rails-find_each-work.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">alebian&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Alejandro Bezdjian</li><li><a class="u-email" href="mailto:alebezdjian@gmail.com">alebezdjian@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.linkedin.com/in/alebian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">alebian</span></a></li><li><a href="https://www.twitter.com/alebezdjian"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">alebezdjian</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Alejandro Bezdjian&#39;s technical blog about programming.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
