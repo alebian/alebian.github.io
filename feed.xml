@@ -1,4 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.1">Jekyll</generator><link href="https://blog.alebian.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://blog.alebian.com/" rel="alternate" type="text/html" /><updated>2022-11-03T16:39:10-03:00</updated><id>https://blog.alebian.com/feed.xml</id><title type="html">alebian’s blog</title><subtitle>Alejandro Bezdjian's technical blog about programming.</subtitle><author><name>Alejandro Bezdjian</name></author><entry><title type="html">Implement a kafka like consumer strategy to process records in your database</title><link href="https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html" rel="alternate" type="text/html" title="Implement a kafka like consumer strategy to process records in your database" /><published>2020-11-13T00:00:00-03:00</published><updated>2020-11-13T00:00:00-03:00</updated><id>https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy</id><content type="html" xml:base="https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html">&lt;p&gt;Let’s say you have a table in your database which contains data about some files that you would like to process in batch jobs (this is just an example, it can be anything other than files). You have some job that runs every X minutes and does something like:&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.1">Jekyll</generator><link href="https://blog.alebian.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://blog.alebian.com/" rel="alternate" type="text/html" /><updated>2022-12-28T12:22:44-03:00</updated><id>https://blog.alebian.com/feed.xml</id><title type="html">alebian’s blog</title><subtitle>Alejandro Bezdjian's technical blog about programming.</subtitle><author><name>Alejandro Bezdjian</name></author><entry><title type="html">Add changes to previous git commits</title><link href="https://blog.alebian.com/git/2022/12/28/add-changes-to-previous-commit.html" rel="alternate" type="text/html" title="Add changes to previous git commits" /><published>2022-12-28T00:00:00-03:00</published><updated>2022-12-28T00:00:00-03:00</updated><id>https://blog.alebian.com/git/2022/12/28/add-changes-to-previous-commit</id><content type="html" xml:base="https://blog.alebian.com/git/2022/12/28/add-changes-to-previous-commit.html">&lt;p&gt;When we are developing, it is always recommended to commit our changes often and in logical units. For example, in a web application, we might need to add some field in the database and let the user change that field in a form. Using an MVC framework the steps would look like:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Add a migration that adds the field in the database&lt;/li&gt;
+  &lt;li&gt;Add the field in the model&lt;/li&gt;
+  &lt;li&gt;Pass the user input from the controller to the service that creates/updates the model&lt;/li&gt;
+  &lt;li&gt;Add the input in the form&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;A common git practice would be to create commits for:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Adding the migration&lt;/li&gt;
+  &lt;li&gt;Change the model, controller and service&lt;/li&gt;
+  &lt;li&gt;Modify the form&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Now, a very common scenario is that when we are changing the form we find out there was a bug in the service, or we want to change the field name to something more meaningful, or that we forgot to add the field in the model, etc. So how do we add those changes to previously committed files without removing our commits?&lt;/p&gt;
+
+&lt;p&gt;I’m going to show you 2 ways you can do this depending on how many commits behind you want to put those changes.&lt;/p&gt;
+
+&lt;h3 id=&quot;put-your-changes-in-the-last-commit&quot;&gt;Put your changes in the last commit&lt;/h3&gt;
+
+&lt;p&gt;This is the simplest case, and you can use the following command that you may already know:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git add ...files
+
+git commit &lt;span class=&quot;nt&quot;&gt;--amend&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--no-edit&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;--no-edit&lt;/code&gt; flag will skip the step where you can edit the commit message, if you don’t pass this flag git will show you a text editor.&lt;/p&gt;
+
+&lt;h3 id=&quot;put-changes-in-older-commits&quot;&gt;Put changes in older commits&lt;/h3&gt;
+
+&lt;p&gt;This is the more complex case and we are going to need the commit’s hash we want to change. Following the previous MVC example, running &lt;code class=&quot;highlighter-rouge&quot;&gt;git log&lt;/code&gt; returns something like this:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;commit cc8a75f6753d07afaf0ece2b1a4eb26fbbfb3ec6 (HEAD -&amp;gt; main)
+
+    Changed form
+
+commit fa4f42bd629de581b48024465f90e61bf71734ae
+
+    Changes in backend
+
+commit 94b3af6d73d1c17518785a15a5e26c1ec3ce36fd
+
+    Added migration
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Let’s say that we want to change the field name in the database, so out target commit is the one we added the migration (&lt;code class=&quot;highlighter-rouge&quot;&gt;94b3af6d73d1c17518785a15a5e26c1ec3ce36fd&lt;/code&gt;). To do this you can run:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git add migration_file
+git commit &lt;span class=&quot;nt&quot;&gt;--fixup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;94b3af6d73d1c17518785a15a5e26c1ec3ce36fd
+git rebase &lt;span class=&quot;nt&quot;&gt;--interactive&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--autosquash&lt;/span&gt; 94b3af6d73d1c17518785a15a5e26c1ec3ce36fd^
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;git commit --fixup=HASH&lt;/code&gt; will create a commit with the same message as the mentioned commit with a prepended &lt;code class=&quot;highlighter-rouge&quot;&gt;fixup!&lt;/code&gt;.
+Then the &lt;code class=&quot;highlighter-rouge&quot;&gt;git rebase --interactive --autosquash HASH^&lt;/code&gt; will automatically change the rebase message for you putting the fixup commit in the correct place (if the commit hash is correct and you used &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt; at the end) and changing the word &lt;code class=&quot;highlighter-rouge&quot;&gt;edit&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;fixup&lt;/code&gt;. After saving the message git will perform the desired changes.&lt;/p&gt;
+
+&lt;h3 id=&quot;another-way-to-make-changes-in-older-commits&quot;&gt;Another way to make changes in older commits&lt;/h3&gt;
+
+&lt;p&gt;The previous way is a simplified version of a more complex process that you can do:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git stash
+git rebase &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; HEAD~3
+
+Mark the commit you want to change by replacing edit with pick
+
+git stash pop
+git add ...files
+git commit &lt;span class=&quot;nt&quot;&gt;--amend&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--no-edit&lt;/span&gt;
+git rebase &lt;span class=&quot;nt&quot;&gt;--continue&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In this case we stash our changes, then perform an interactive rebase. When changing &lt;code class=&quot;highlighter-rouge&quot;&gt;edit&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;pick&lt;/code&gt; you are telling git to stop the rebase in that commit so you can add all the changes that you want. After doing the changes (in this case by doing a &lt;code class=&quot;highlighter-rouge&quot;&gt;stash pop&lt;/code&gt;) you ammend the changes into the commit that you picked and then continue the rebase process.&lt;/p&gt;
+
+&lt;h2 id=&quot;very-important&quot;&gt;Very important&lt;/h2&gt;
+
+&lt;p&gt;The 3 methods mentioned will change the hash of the modified commit and ALL it’s children! This is very important because if a colleague is working on the same branch or if there are branches coming out of any of those commits you will find a lot of conflicts and commit dupications.&lt;/p&gt;</content><author><name>Alejandro Bezdjian</name></author><category term="git" /><category term="git" /><summary type="html">When we are developing, it is always recommended to commit our changes often and in logical units. For example, in a web application, we might need to add some field in the database and let the user change that field in a form. Using an MVC framework the steps would look like:</summary></entry><entry><title type="html">Implement a kafka like consumer strategy to process records in your database</title><link href="https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html" rel="alternate" type="text/html" title="Implement a kafka like consumer strategy to process records in your database" /><published>2020-11-13T00:00:00-03:00</published><updated>2020-11-13T00:00:00-03:00</updated><id>https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy</id><content type="html" xml:base="https://blog.alebian.com/sql/postgresql/algorithms/2020/11/13/sql-kafka-like-consumer-strategy.html">&lt;p&gt;Let’s say you have a table in your database which contains data about some files that you would like to process in batch jobs (this is just an example, it can be anything other than files). You have some job that runs every X minutes and does something like:&lt;/p&gt;
 
 &lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;files&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;processed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;false&lt;/span&gt;
