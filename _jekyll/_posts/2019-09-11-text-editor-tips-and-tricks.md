@@ -8,7 +8,7 @@ date: 2019-09-11 00:00:00 -0300
 categories: editor productivity vscode tools
 ---
 
-Recently, I was peer programming at work and, whithout thinking, I started to use a few editor tricks I had learned a while ago. My co-worker was amazed with them and picked up a few. At first I thought it was no big deal, but a few days later I began to observe that there are a lot of people who don't know many of these tricks. Since the tools we use have a lot of functionalities to make us more productive, it's a shame that we spoil them. That's why I thought it would be a good opportunity to transfer this useful knowledge and help others improve their productivity.
+Recently, I was peer programming at work and, without thinking, I started to use a few editor tricks I had learned a while ago. My co-worker was amazed with them and picked up a few. At first I thought it was no big deal, but a few days later I began to observe that there are a lot of people who don't know many of these tricks. Since the tools we use have a lot of functionalities to make us more productive, it's a shame that we spoil them. That's why I thought it would be a good opportunity to transfer this useful knowledge and help others improve their productivity.
 
 ## Building blocks
 
@@ -28,7 +28,7 @@ Using *option + cursor* move the cursor between words:
 
 ![Move cursor between words](/assets/images/editor_tips/2_move_cursor.gif)
 
-User *cmd + cursor* to move the cursor to the end or beginning of line:
+Use *cmd + cursor* to move the cursor to the end or beginning of line:
 
 ![Move cursor to the beginning of line](/assets/images/editor_tips/3_move_cursor.gif)
 
@@ -52,7 +52,7 @@ To improve this, we can use *shift + option + cursor* to highlight whole words:
 
 ![Highlight words](/assets/images/editor_tips/7_highlight.gif)
 
-We can boost this using *shift * cmd + cursor* to select the entire line:
+We can boost this using *shift + cmd + cursor* to select the entire line:
 
 ![Highlight line](/assets/images/editor_tips/8_highlight.gif)
 
@@ -111,7 +111,7 @@ Of course there are other ways to solve them, your creativity is your limit!
 There are other features that editors have that you definitely should know:
 
 * Find and open a file by name: in my case is *cmd + d* but other editors and IDEs have them mapped differently.
-* Use autocompletion: if you develop in Java or similiar you are probably used to this, but editors have a lot of plugins for other languages that can help you.
+* Use autocompletion: if you develop in Java or similar you are probably used to this, but editors have a lot of plugins for other languages that can help you.
 * Find words in a file using regexp. This one is a bit more difficult (because you have to know regular expressions) but is very useful from time to time:
 
 ![Regexp selection](/assets/images/editor_tips/exercise_7.gif)
